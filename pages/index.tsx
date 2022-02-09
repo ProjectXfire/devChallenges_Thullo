@@ -13,7 +13,7 @@ import { getUserReq } from "@services/app/user";
 import { getBoardsReq } from "@services/app/board";
 // Utils
 import { parseCookies } from "@utils/parseCookies";
-import { useBoards } from "@utils/pages/useBoards";
+import { useBoards } from "@utils/hook/useBoards";
 // Components & Styled components
 import { BoardCard } from "@components/board/card";
 import { BoardModal } from "@components/board/newBoard/modal";

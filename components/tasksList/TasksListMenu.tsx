@@ -64,6 +64,7 @@ const Container = styled.div<SProps>`
   border-radius: 5px;
   font-weight: lighter;
   font-size: 0.9rem;
+  z-index: 2;
 
   svg {
     position: absolute;

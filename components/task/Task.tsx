@@ -77,6 +77,7 @@ export const Task = ({ task, index, inTasksList, onDelete }: Props) => {
                 layout="fill"
                 alt="cover-task"
                 objectFit="cover"
+                priority
               />
             </ImageContainer>
           ) : (

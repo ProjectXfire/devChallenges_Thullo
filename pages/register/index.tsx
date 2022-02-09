@@ -17,7 +17,7 @@ import sanitizeHTML from "sanitize-html";
 // Models
 import { UserRegisterDto, UserRegisterSchema } from "@models/user";
 // Utils
-import { useRegister } from "@utils/pages/useRegister";
+import { useRegister } from "@utils/hook/useRegister";
 import { parseCookies } from "@utils/parseCookies";
 // Logo
 import Logo from "@public/Logo.svg";

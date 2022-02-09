@@ -14,9 +14,10 @@ import { TTasksList } from "@models/tasksList";
 import { getBoardReq } from "@services/app/board";
 import { getUserReq } from "@services/app/user";
 import { getAllTasksListByBoardReq } from "@services/app/tasksList";
+import { getToken } from "@services/token";
 // Utils
-import { useBoard } from "@utils/pages/useBoard";
-import { useTasksList } from "@utils/pages/useTasksList";
+import { useBoard } from "@utils/hook/useBoard";
+import { useTasksList } from "@utils/hook/useTasksList";
 import { parseCookies } from "@utils/parseCookies";
 // Components & styled components
 import { Button } from "@styles/common/Button";

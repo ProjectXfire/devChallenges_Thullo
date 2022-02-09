@@ -76,6 +76,7 @@ const Container = styled.div<SProps>`
   z-index: 1;
   background-color: white;
   border-radius: 5px;
+  z-index: 2;
   input {
     width: 100%;
     padding: 5px 10px;

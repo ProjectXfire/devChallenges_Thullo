@@ -10,7 +10,7 @@ import { TUser } from "@models/user";
 // Services
 import { getUserReq } from "@services/app/user";
 // Context
-import { useProfile } from "@utils/pages/useProfile";
+import { useProfile } from "@utils/hook/useProfile";
 // Utils
 import { parseCookies } from "@utils/parseCookies";
 // Logo

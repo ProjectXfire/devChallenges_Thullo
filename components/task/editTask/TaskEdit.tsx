@@ -23,7 +23,7 @@ import TaskCoverTemplate from "@public/tasktemplate.jpg";
 import { colors, device } from "@styles/variables";
 import { Button } from "@styles/common/Button";
 import { Background } from "@styles/common/Background";
-import { useTask } from "@components/task/editTask/useTask";
+import { useTask } from "@utils/hook/useTask";
 import { Members } from "@components/common/members";
 
 interface Props {

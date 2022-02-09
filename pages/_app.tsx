@@ -1,5 +1,6 @@
 import "../styles/globals.css";
-import type { AppProps } from "next/app";
+import type { AppContext, AppProps } from "next/app";
+import App from "next/app";
 // Providers
 import "react-toastify/dist/ReactToastify.css";
 // Context Providers
@@ -8,6 +9,12 @@ import { UserProvider } from "@utils/context/user/UserContext";
 import { BoardProvider } from "@utils/context/board/BoardContext";
 // Components
 import { Layout } from "@components/layout/Layout";
+
+MyApp.getInitialProps = async (ctx: AppContext) => {
+  const appProps = await App.getInitialProps(ctx);
+  appProps.pageProps.baseUrl = process.env.API_URL;
+  return { ...appProps };
+};
 
 const MyAppProviders: React.FC = ({ children }) => {
   return (
@@ -20,6 +27,7 @@ const MyAppProviders: React.FC = ({ children }) => {
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
+  console.log(pageProps);
   return (
     <MyAppProviders>
       <Layout>

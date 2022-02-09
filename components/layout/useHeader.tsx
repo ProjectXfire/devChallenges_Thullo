@@ -14,7 +14,7 @@ export const useHeader = () => {
   //******** CONTEXT ********//
   // Token
   const {
-    states: { token },
+    states: { isLogged },
     onRemoveToken,
   } = useContext(TokenContext);
   // User
@@ -70,7 +70,7 @@ export const useHeader = () => {
   return {
     dropdownRef,
     user,
-    token,
+    isLogged,
     handleSidebar,
     handleUserOptions,
     profile,

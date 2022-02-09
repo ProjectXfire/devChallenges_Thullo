@@ -32,6 +32,7 @@ export type TUser = {
   email: string;
   avatar: string;
   avatarId: string;
+  completeName: string;
 };
 
 export const UserLoginSchema = Joi.object<UserLoginDto>({

@@ -25,7 +25,7 @@ export const Header = () => {
     handleUserOptions,
     onLogout,
     profile,
-    token,
+    isLogged,
     user,
     showUserOptions,
     showSidebar,
@@ -39,7 +39,7 @@ export const Header = () => {
 
   return (
     <>
-      {token && (
+      {isLogged && (
         <>
           <Nav>
             <Link href="/">

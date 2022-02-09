@@ -3,7 +3,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { getToken } from "@services/token";
 
 interface ITokenStates {
-  token: string | undefined;
+  isLogged: boolean;
 }
 
 interface ITokenProps {
@@ -16,23 +16,23 @@ export const TokenContext = createContext({} as ITokenProps);
 
 export const TokenProvider: React.FC = ({ children }) => {
   const [states, setStates] = useState<ITokenStates>({
-    token: undefined,
+    isLogged: false,
   });
 
   const onGetToken = () => {
     const token = getToken();
     setStates({
-      token,
+      isLogged: token ? true : false,
     });
   };
 
   const onRemoveToken = () => {
-    setStates({ token: undefined });
+    setStates({ isLogged: false });
   };
 
   useEffect(() => {
     onGetToken();
-  }, [states.token]);
+  }, [states.isLogged]);
 
   return (
     <TokenContext.Provider value={{ states, onGetToken, onRemoveToken }}>
