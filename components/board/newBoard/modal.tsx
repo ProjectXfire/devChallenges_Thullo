@@ -8,7 +8,7 @@ import sanitizeHTML from "sanitize-html";
 // Models
 import { TBoardForm, BoardSchema, TBoard } from "@models/board";
 // Main hook
-import { useModal } from "./useModal";
+import { useModalNewBoard } from "@utils/hook/useModalNewBoard";
 // Default image
 import DefaultImg from "@public/Logo.svg";
 // Components
@@ -19,13 +19,11 @@ import { colors } from "@styles/variables";
 import { Alert } from "@styles/common/Alert";
 
 interface Props {
-  baseUrl: string;
   isOpen: boolean;
   onClose: () => void;
-  token: string;
 }
 
-export const BoardModal = ({ baseUrl, isOpen, onClose, token }: Props) => {
+export const BoardModal = ({ isOpen, onClose }: Props) => {
   // MAIN HOOK
   const {
     onCreateBoard,
@@ -38,7 +36,7 @@ export const BoardModal = ({ baseUrl, isOpen, onClose, token }: Props) => {
     setAvatar,
     error,
     disabled,
-  } = useModal(baseUrl, onClose, token);
+  } = useModalNewBoard(onClose);
 
   //******** STATES ********//
   // Form states

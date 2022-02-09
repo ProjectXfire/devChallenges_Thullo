@@ -11,8 +11,8 @@ import {
   MdImage,
   MdHomeWork,
   MdAdd,
-  MdCancel,
 } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
 import sanitizeHTML from "sanitize-html";
 import { toast } from "react-toastify";
 // Utils
@@ -145,6 +145,7 @@ export const TaskEdit = ({ baseUrl, token }: Props) => {
                             <TaskMember key={user._id}>
                               <Members user={user} />
                               <p>{`${user.name} ${user.lastname}`}</p>
+                              <Button></Button>
                             </TaskMember>
                           ))}
                         </TaskMembers>

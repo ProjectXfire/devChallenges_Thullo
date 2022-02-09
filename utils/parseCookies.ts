@@ -1,7 +1,7 @@
 import cookie from "cookie";
 import { GetServerSidePropsContext } from "next";
 
-export const parseCookies = (ctx: GetServerSidePropsContext): any => {
+export const parseCookies = (ctx: GetServerSidePropsContext): string | null => {
   const cookieParsed = cookie.parse(
     ctx.req ? ctx.req.headers.cookie || "" : document.cookie
   );

@@ -35,7 +35,6 @@ import { Button } from "@styles/common/Button";
 //******** SSR ********//
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
-    const baseUrl = process.env.API_URL || "";
     const token = parseCookies(ctx);
     if (!token) {
       return {
@@ -45,12 +44,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         },
       };
     }
-    const user = await getUserReq(baseUrl, token);
+    const user = await getUserReq(token);
     return {
       props: {
         user,
-        baseUrl,
-        token,
       },
     };
   } catch (error) {
@@ -65,19 +62,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
 interface Props {
   user: TUser;
-  baseUrl: string;
   token: string;
 }
 
 //******** COMPONENT ********//
-const EditProfile = ({ user, baseUrl, token }: Props) => {
+const EditProfile = ({ user }: Props) => {
   //******** CONTEXT  ********//
   // Main hook
-  const { error, disabled, onUpdate, tempAvatar, changeAvatar } = useProfile(
-    user,
-    baseUrl,
-    token
-  );
+  const { error, disabled, onUpdate, tempAvatar, changeAvatar } =
+    useProfile(user);
 
   //******** STATES ********//
   // Form states

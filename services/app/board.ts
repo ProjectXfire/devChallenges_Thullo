@@ -2,20 +2,17 @@ import axios from "axios";
 // Models
 import { TBoard, TBoardDto, TBoardResponse } from "@models/board";
 // Services
+import apiReq from "@services/interceptors/apiThullo";
 import { handleErrorMessage } from "@services/error";
 
 export const getBoardsReq = async (
-  baserUrl: string,
   token: string,
   limit: number,
   page: number
 ) => {
   try {
-    const response = await axios.get<TBoardResponse>(
-      `${baserUrl}/board/list?limit=${limit}&page=${page}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+    const response = await apiReq(token).get<TBoardResponse>(
+      `/board/list?limit=${limit}&page=${page}`
     );
     return response.data;
   } catch (error: any) {
@@ -23,18 +20,9 @@ export const getBoardsReq = async (
   }
 };
 
-export const getBoardReq = async (
-  baseUrl: string,
-  token: string,
-  boardId: string
-) => {
+export const getBoardReq = async (token: string | null, boardId: string) => {
   try {
-    const response = await axios.get<TBoard>(
-      `${baseUrl}/board/get/${boardId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const response = await apiReq(token).get<TBoard>(`/board/get/${boardId}`);
     return response.data;
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
@@ -42,21 +30,11 @@ export const getBoardReq = async (
 };
 
 export const createBoardReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   payload: FormData
 ) => {
   try {
-    const response = await axios.post<TBoard>(
-      `${baseUrl}/board/create`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await apiReq(token).post<TBoard>(`/board/create`, payload);
     return response.data;
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
@@ -64,20 +42,14 @@ export const createBoardReq = async (
 };
 
 export const updateBoardReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   boardId: string,
   payload: TBoardDto
 ) => {
   try {
-    const response = await axios.put<TBoard>(
-      `${baseUrl}/board/update/${boardId}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TBoard>(
+      `/board/update/${boardId}`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -86,18 +58,12 @@ export const updateBoardReq = async (
 };
 
 export const findUserInBoardReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   boardId: string
 ) => {
   try {
-    const response = await axios.get<boolean>(
-      `${baseUrl}/board/find/member/${boardId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).get<boolean>(
+      `/board/find/member/${boardId}`
     );
     return response.data;
   } catch (error: any) {
@@ -108,24 +74,15 @@ export const findUserInBoardReq = async (
 //******** Removing or adding members to the board ********//
 
 export const removeMemberReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   boardId: string,
   userId: string
 ) => {
   try {
-    const response = await axios.put<TBoard>(
-      `${baseUrl}/board/remove/member`,
-      {
-        boardId: boardId,
-        member: userId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await apiReq(token).put<TBoard>(`/board/remove/member`, {
+      boardId: boardId,
+      member: userId,
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
@@ -133,24 +90,15 @@ export const removeMemberReq = async (
 };
 
 export const addMemberReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   boardId: string,
   userId: string
 ) => {
   try {
-    const response = await axios.put<TBoard>(
-      `${baseUrl}/board/assign/member`,
-      {
-        boardId: boardId,
-        member: userId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await apiReq(token).put<TBoard>(`/board/assign/member`, {
+      boardId: boardId,
+      member: userId,
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));

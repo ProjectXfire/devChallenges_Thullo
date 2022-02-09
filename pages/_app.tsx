@@ -27,7 +27,6 @@ const MyAppProviders: React.FC = ({ children }) => {
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
-  console.log(pageProps);
   return (
     <MyAppProviders>
       <Layout>

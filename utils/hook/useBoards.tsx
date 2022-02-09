@@ -15,11 +15,9 @@ import { BoardContext } from "@utils/context/board/BoardContext";
 interface Props {
   dataUser: TUser;
   dataBoards: TBoard[];
-  token: string;
-  baseUrl: string;
 }
 
-export const useBoards = ({ baseUrl, token, dataBoards, dataUser }: Props) => {
+export const useBoards = ({ dataBoards, dataUser }: Props) => {
   //******** VARIABLES ********//
   const router = useRouter();
 
@@ -41,7 +39,7 @@ export const useBoards = ({ baseUrl, token, dataBoards, dataUser }: Props) => {
   const validateAccessToBoard = async (boardId: string) => {
     setError("");
     try {
-      const isAMember = await findUserInBoardReq(baseUrl, token, boardId);
+      const isAMember = await findUserInBoardReq(null, boardId);
       if (isAMember) {
         router.push(`/${boardId}`);
         return;

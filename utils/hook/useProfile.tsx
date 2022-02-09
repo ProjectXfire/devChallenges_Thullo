@@ -3,12 +3,7 @@ import { toast } from "react-toastify";
 // Models
 import { TUser, UserUpdateDto } from "@models/user";
 // Services
-import {
-  updateUserReq,
-  uploadAvatarReq,
-  removeAvatarReq,
-  updateUserFormDataReq,
-} from "@services/app/user";
+import { updateUserReq, updateUserFormDataReq } from "@services/app/user";
 // User context
 import { UserContext } from "@utils/context/user/UserContext";
 import { useRouter } from "next/router";
@@ -16,7 +11,7 @@ import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 // Utils
 import { uploadFile } from "@utils/uploadFile";
 
-export const useProfile = (data: TUser, baseUrl: string, token: string) => {
+export const useProfile = (data: TUser) => {
   //******** CONTEXT  ********//
   // User
   const { setUser } = useContext(UserContext);
@@ -45,14 +40,14 @@ export const useProfile = (data: TUser, baseUrl: string, token: string) => {
         formData.append("name", inputsData.name);
         formData.append("lastname", inputsData.lastname);
         formData.append("avatarId", data.avatarId);
-        await updateUserFormDataReq(baseUrl, token, formData);
+        await updateUserFormDataReq(formData);
       } else {
         const payload = {
           ...inputsData,
           avatar: data.avatar,
           avatarId: data.avatarId,
         };
-        await updateUserReq(baseUrl, token, payload);
+        await updateUserReq(payload);
       }
       setDisabled(false);
       e.target.reset();

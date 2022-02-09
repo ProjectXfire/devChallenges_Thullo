@@ -27,7 +27,6 @@ import { colors } from "@styles/variables";
 import { Alert } from "@styles/common/Alert";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const baseUrl = process.env.API_URL;
   const token = parseCookies(ctx);
   if (token) {
     return {
@@ -38,20 +37,14 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     };
   }
   return {
-    props: {
-      baseUrl,
-    },
+    props: {},
   };
 };
 
-interface Props {
-  baseUrl: string;
-}
-
-const Login = ({ baseUrl }: Props) => {
+const Login = () => {
   //******** STATES ********//
   // Main hook
-  const { onLogin, error, disabled } = useLogin(baseUrl);
+  const { onLogin, error, disabled } = useLogin();
   // Form states
   const {
     handleSubmit,

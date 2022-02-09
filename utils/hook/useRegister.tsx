@@ -5,7 +5,7 @@ import { UserRegisterDto } from "@models/user";
 // Services
 import { registerReq } from "@services/app/user";
 
-export const useRegister = (baseUrl: string) => {
+export const useRegister = () => {
   //******** VARAIBLES ********//
   const router = useRouter();
 
@@ -25,7 +25,7 @@ export const useRegister = (baseUrl: string) => {
         avatarId: "",
       };
       setDisabled(true);
-      await registerReq(baseUrl, newUser);
+      await registerReq(newUser);
       setDisabled(false);
       e.target.reset();
       router.push("/login");

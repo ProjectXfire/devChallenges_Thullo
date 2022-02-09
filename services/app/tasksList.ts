@@ -7,23 +7,18 @@ import {
   UpdateTasksListDto,
 } from "@models/tasksList";
 // Services
+import apiReq from "@services/interceptors/apiThullo";
 import { handleErrorMessage } from "@services/error";
 import { TCreateTaskDto, TDeleteTaskDto } from "@models/task";
 
 export const createTasksListReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   payload: CreateTasksListDto
 ) => {
   try {
-    const response = await axios.post<TTasksList>(
-      `${baseUrl}/tasklist/create`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).post<TTasksList>(
+      `/tasklist/create`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -32,18 +27,12 @@ export const createTasksListReq = async (
 };
 
 export const getAllTasksListByBoardReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   boardId: string
 ) => {
   try {
-    const response = await axios.get<TTasksListResponse>(
-      `${baseUrl}/tasklist/list/${boardId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).get<TTasksListResponse>(
+      `/tasklist/list/${boardId}`
     );
     return response.data.result;
   } catch (error: any) {
@@ -52,20 +41,14 @@ export const getAllTasksListByBoardReq = async (
 };
 
 export const updateTasksListReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   tasksListId: string,
   payload: UpdateTasksListDto
 ) => {
   try {
-    const response = await axios.put<TTasksList>(
-      `${baseUrl}/tasklist/update/${tasksListId}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TTasksList>(
+      `/tasklist/update/${tasksListId}`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -74,16 +57,11 @@ export const updateTasksListReq = async (
 };
 
 export const deleteTasksListReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   tasksListId: string
 ) => {
   try {
-    await axios.delete(`${baseUrl}/tasklist/remove/${tasksListId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await apiReq(token).delete(`/tasklist/remove/${tasksListId}`);
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
   }
@@ -92,19 +70,13 @@ export const deleteTasksListReq = async (
 //******** Removing or adding tasks to the list *******//
 
 export const assignNewTaskReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   payload: TCreateTaskDto
 ) => {
   try {
-    const response = await axios.put<TTasksList>(
-      `${baseUrl}/tasklist/asssign/task`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TTasksList>(
+      `/tasklist/asssign/task`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -113,19 +85,13 @@ export const assignNewTaskReq = async (
 };
 
 export const removeTaskReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   payload: TDeleteTaskDto
 ) => {
   try {
-    const response = await axios.put<TTasksList>(
-      `${baseUrl}/tasklist/remove/task`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TTasksList>(
+      `/tasklist/remove/task`,
+      payload
     );
     return response.data;
   } catch (error: any) {

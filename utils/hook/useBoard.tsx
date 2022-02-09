@@ -18,12 +18,9 @@ import { UserContext } from "@utils/context/user/UserContext";
 interface Props {
   board: TBoard;
   user: TUser;
-  baseUrl: string;
-  token: string;
-  tasksList: TTasksList[];
 }
 
-export const useBoard = ({ baseUrl, token, user, board, tasksList }: Props) => {
+export const useBoard = ({ user, board }: Props) => {
   //******** VARIABLES ********//
   const isPublicMenuRef = useRef<HTMLDivElement>(null);
   const addMemberRef = useRef<HTMLDivElement>(null);
@@ -75,12 +72,7 @@ export const useBoard = ({ baseUrl, token, user, board, tasksList }: Props) => {
         isPublic: isPublic !== null ? isPublic : selectedBoard.isPublic,
         description: description || selectedBoard.description,
       };
-      const updatedBoard = await updateBoardReq(
-        baseUrl,
-        token,
-        board._id,
-        payload
-      );
+      const updatedBoard = await updateBoardReq(null, board._id, payload);
       setSelectedBoard(updatedBoard);
     } catch (error: any) {
       setBoardError(error.message);
@@ -94,12 +86,7 @@ export const useBoard = ({ baseUrl, token, user, board, tasksList }: Props) => {
   const onRemoveMember = async (userId: string) => {
     setBoardError("");
     try {
-      const updatedBoard = await removeMemberReq(
-        baseUrl,
-        token,
-        board._id,
-        userId
-      );
+      const updatedBoard = await removeMemberReq(null, board._id, userId);
       setSelectedBoard(updatedBoard);
     } catch (error: any) {
       setBoardError(error.message);
@@ -110,7 +97,7 @@ export const useBoard = ({ baseUrl, token, user, board, tasksList }: Props) => {
     setBoardError("");
     try {
       if (searchValue) {
-        const users = await searchUsersReq(baseUrl, token, searchValue);
+        const users = await searchUsersReq(null, searchValue);
         setSearchedUsers(users);
       }
     } catch (error: any) {
@@ -120,12 +107,7 @@ export const useBoard = ({ baseUrl, token, user, board, tasksList }: Props) => {
   // Add user to board
   const addUserToBoard = async (userId: string) => {
     try {
-      const updatedBoard = await addMemberReq(
-        baseUrl,
-        token,
-        board._id,
-        userId
-      );
+      const updatedBoard = await addMemberReq(null, board._id, userId);
       setSelectedBoard(updatedBoard);
     } catch (error: any) {
       setBoardError(error.message);

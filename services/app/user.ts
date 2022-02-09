@@ -1,4 +1,5 @@
 import axios from "axios";
+import { GetServerSidePropsContext } from "next";
 // Models
 import {
   UserRegisterDto,
@@ -8,14 +9,12 @@ import {
 } from "@models/user";
 // Services
 import { handleErrorMessage } from "@services/error";
+import apiReq from "@services/interceptors/apiThullo";
 
-export const registerReq = async (
-  baseUrl: string,
-  payload: UserRegisterDto
-) => {
+export const registerReq = async (payload: UserRegisterDto) => {
   try {
-    const response = await axios.post<TUserResponse>(
-      `${baseUrl}/user/create`,
+    const response = await apiReq(null).post<TUserResponse>(
+      `/user/create`,
       payload
     );
     return response.data.message;
@@ -24,11 +23,9 @@ export const registerReq = async (
   }
 };
 
-export const getUserReq = async (baseUrl: string, token: string) => {
+export const getUserReq = async (token: string) => {
   try {
-    const response = await axios.get<TUser>(`${baseUrl}/user/get`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await apiReq(token).get<TUser>(`/user/get`);
     return response.data;
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
@@ -36,21 +33,11 @@ export const getUserReq = async (baseUrl: string, token: string) => {
 };
 
 // Using form data (Sending with input file)
-export const updateUserFormDataReq = async (
-  baseUrl: string,
-  token: string,
-  formData: FormData
-) => {
+export const updateUserFormDataReq = async (formData: FormData) => {
   try {
-    const response = await axios.put<TUserResponse>(
-      `${baseUrl}/user/update`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
+    const response = await apiReq(null).put<TUserResponse>(
+      `/user/update`,
+      formData
     );
     return response.data;
   } catch (error: any) {
@@ -59,18 +46,11 @@ export const updateUserFormDataReq = async (
 };
 
 // Using json (Sending without input file)
-export const updateUserReq = async (
-  baseUrl: string,
-  token: string,
-  payload: UserUpdateDto
-) => {
+export const updateUserReq = async (payload: UserUpdateDto) => {
   try {
-    const response = await axios.put<TUserResponse>(
-      `${baseUrl}/user/update`,
-      payload,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+    const response = await apiReq(null).put<TUserResponse>(
+      `/user/update`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -78,49 +58,13 @@ export const updateUserReq = async (
   }
 };
 
-export const uploadAvatarReq = async (
-  baseUrl: string,
-  token: string,
-  file: FormData
-) => {
-  try {
-    await axios.post(`${baseUrl}/user/upload`, file, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  } catch (error: any) {
-    throw new Error(handleErrorMessage(error));
-  }
-};
-
-export const removeAvatarReq = async (
-  baseUrl: string,
-  token: string,
-  fileId: string
-) => {
-  try {
-    await axios.post(
-      `${baseUrl}/user/remove/avatar`,
-      { avatarId: fileId },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-  } catch (error: any) {
-    throw new Error(handleErrorMessage(error));
-  }
-};
-
 export const searchUsersReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   searchValue: string
 ) => {
   try {
-    const response = await axios.get<TUser[]>(
-      `${baseUrl}/user/list?search=${searchValue}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+    const response = await apiReq(token).get<TUser[]>(
+      `/user/list?search=${searchValue}`
     );
     return response.data;
   } catch (error: any) {

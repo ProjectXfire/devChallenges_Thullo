@@ -9,8 +9,6 @@ import styled from "styled-components";
 import { TUser } from "@models/user";
 // Services
 import { getUserReq } from "@services/app/user";
-// Context
-import { useProfile } from "@utils/hook/useProfile";
 // Utils
 import { parseCookies } from "@utils/parseCookies";
 // Logo
@@ -22,7 +20,6 @@ import { colors } from "@styles/variables";
 //******** SSR ********//
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
-    const baseUrl = process.env.API_URL || "";
     const token = parseCookies(ctx);
     if (!token) {
       return {
@@ -32,7 +29,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         },
       };
     }
-    const user = await getUserReq(baseUrl, token);
+    const user = await getUserReq(token);
     return {
       props: {
         user,
@@ -54,10 +51,6 @@ interface Props {
 
 //******** COMPONENT ********//
 const Profile = ({ user }: Props) => {
-  //******** CONTEXT  ********//
-  // User
-  const context = useProfile(user, "", "");
-
   //******** METHODS ********//
   // Load image by URL
   const myLoaderAvatar = () => {

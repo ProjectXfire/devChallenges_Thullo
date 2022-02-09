@@ -23,7 +23,6 @@ import { colors } from "@styles/variables";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
-    const baseUrl = process.env.API_URL || "";
     const token = parseCookies(ctx);
     if (!token) {
       return {
@@ -33,14 +32,12 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         },
       };
     }
-    const user = await getUserReq(baseUrl, token);
-    const boardResponse = await getBoardsReq(baseUrl, token, 10, 1);
+    const user = await getUserReq(token);
+    const boardResponse = await getBoardsReq(token, 10, 1);
     return {
       props: {
         user,
         boardResponse,
-        token,
-        baseUrl,
       },
     };
   } catch (error) {
@@ -56,16 +53,12 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 interface Props {
   user: TUser;
   boardResponse: TBoardResponse;
-  token: string;
-  baseUrl: string;
 }
 
-const Home = ({ user, boardResponse, token, baseUrl }: Props) => {
+const Home = ({ user, boardResponse }: Props) => {
   //******** MAIN HOOK  ********//
   const { showModal, setShowModal, boards, validateAccessToBoard, error } =
     useBoards({
-      baseUrl,
-      token,
       dataUser: user,
       dataBoards: boardResponse.result,
     });
@@ -94,12 +87,7 @@ const Home = ({ user, boardResponse, token, baseUrl }: Props) => {
             />
           ))}
         </Content>
-        <BoardModal
-          baseUrl={baseUrl}
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          token={token}
-        />
+        <BoardModal isOpen={showModal} onClose={() => setShowModal(false)} />
         {showModal && <Background onClick={() => setShowModal(false)} />}
         <ToastContainer autoClose={2000} theme="dark" />
       </Container>

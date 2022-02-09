@@ -10,11 +10,7 @@ import { BoardContext } from "@utils/context/board/BoardContext";
 // Utils
 import { uploadFile } from "@utils/uploadFile";
 
-export const useModal = (
-  baseUrl: string,
-  onClose: () => void,
-  token: string
-) => {
+export const useModalNewBoard = (onClose: () => void) => {
   //******** VARIABLES ********//
   const formDataRef = useRef<FormData>();
 
@@ -41,7 +37,7 @@ export const useModal = (
         formData.append("title", inputsData.title);
         formData.append("isPublic", `${isPublic}`);
         setDisabled(true);
-        const board = await createBoardReq(baseUrl, token, formData);
+        const board = await createBoardReq(null, formData);
         setBoard(board);
         setDisabled(false);
         onClose();

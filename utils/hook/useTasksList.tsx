@@ -17,12 +17,10 @@ import { DropResult } from "react-beautiful-dnd";
 
 interface Props {
   board: TBoard;
-  baseUrl: string;
-  token: string;
   tasksList: TTasksList[];
 }
 
-export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
+export const useTasksList = ({ board, tasksList }: Props) => {
   //******** VARIABLES ********//
   const addTasksListMenuRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +46,7 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
   const addNewTasksList = async (title: string) => {
     if (title) {
       try {
-        const newTasksList = await createTasksListReq(baseUrl, token, {
+        const newTasksList = await createTasksListReq(null, {
           boardId: board._id,
           title,
         });
@@ -65,7 +63,7 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
     index: number
   ) => {
     try {
-      const tasksList = await updateTasksListReq(baseUrl, token, tasksListId, {
+      const tasksList = await updateTasksListReq(null, tasksListId, {
         title,
       });
       updateTasksList(tasksList, index);
@@ -76,7 +74,7 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
   // Delete tasks list
   const deleteTasksList = async (tasksListId: string) => {
     try {
-      await deleteTasksListReq(baseUrl, token, tasksListId);
+      await deleteTasksListReq(null, tasksListId);
       removeTasksList(tasksListId);
     } catch (error: any) {
       setTasksListError(error.message);
@@ -91,7 +89,7 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
   ) => {
     if (title) {
       try {
-        const tasksList = await assignNewTaskReq(baseUrl, token, {
+        const tasksList = await assignNewTaskReq(null, {
           title,
           listId: tasksListId,
           boardId,
@@ -105,7 +103,7 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
   // Delete task
   const deleteTask = async (taskId: string, listId: string, index: number) => {
     try {
-      const tasksList = await removeTaskReq(baseUrl, token, {
+      const tasksList = await removeTaskReq(null, {
         listId,
         taskId,
       });
@@ -148,7 +146,7 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
         const newTasksOrderIds = tasksListSource.tasks.map((item) => item._id);
         updateTasksList(tasksListSource, startColumn);
         try {
-          await updateTasksListReq(baseUrl, token, destination.droppableId, {
+          await updateTasksListReq(null, destination.droppableId, {
             tasks: newTasksOrderIds,
           });
           return;
@@ -183,13 +181,13 @@ export const useTasksList = ({ baseUrl, token, board, tasksList }: Props) => {
       tasksListDest.tasks[taskIndex].listId = destination.droppableId;
       updateTasksList(tasksListDest, finishColumn);
       try {
-        await updateTasksListReq(baseUrl, token, source.droppableId, {
+        await updateTasksListReq(null, source.droppableId, {
           tasks: newTasksOrderSourceIds,
         });
-        await updateTasksListReq(baseUrl, token, destination.droppableId, {
+        await updateTasksListReq(null, destination.droppableId, {
           tasks: newTasksOrderDestinationIds,
         });
-        await updateTaskReq(baseUrl, token, draggableId, {
+        await updateTaskReq(null, draggableId, {
           listId: destination.droppableId,
         });
         return;

@@ -56,7 +56,7 @@ export const useTask = ({ baseUrl, token }: Props) => {
   // Update task description
   const updateTaskDescription = async (taskId: string, description: string) => {
     try {
-      const updatedTask = await updateTaskReq(baseUrl, token, taskId, {
+      const updatedTask = await updateTaskReq(null, taskId, {
         description,
       });
       updateTask(updatedTask);
@@ -68,12 +68,7 @@ export const useTask = ({ baseUrl, token }: Props) => {
   const uploadCoverTask = async (taskId: string, payload: FormData) => {
     if (selectedTask) {
       try {
-        const updatedTask = await uploadCoverReq(
-          baseUrl,
-          token,
-          taskId,
-          payload
-        );
+        const updatedTask = await uploadCoverReq(null, taskId, payload);
         const newLists = updateTasksListFromTask(
           tasksListByBoard,
           selectedTask,
@@ -91,7 +86,7 @@ export const useTask = ({ baseUrl, token }: Props) => {
   const assignMemberToTask = async () => {
     if (selectedTask && selectedItem) {
       try {
-        const updatedTask = await assignUserReq(baseUrl, token, {
+        const updatedTask = await assignUserReq(null, {
           userId: selectedItem,
           taskId: selectedTask._id,
         });

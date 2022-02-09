@@ -7,7 +7,7 @@ import { loginReq } from "@services/app/auth";
 // Context token
 import { TokenContext } from "@utils/context/token/TokenContext";
 
-export const useLogin = (baseUrl: string) => {
+export const useLogin = () => {
   //******** VARIABLES ********//
   const router = useRouter();
 
@@ -23,7 +23,7 @@ export const useLogin = (baseUrl: string) => {
   const onLogin = async (data: UserLoginDto, e: any) => {
     try {
       setDisabled(true);
-      await loginReq(baseUrl, data);
+      await loginReq(data);
       setDisabled(false);
       onGetToken();
       e.target.reset();

@@ -14,7 +14,6 @@ import { TTasksList } from "@models/tasksList";
 import { getBoardReq } from "@services/app/board";
 import { getUserReq } from "@services/app/user";
 import { getAllTasksListByBoardReq } from "@services/app/tasksList";
-import { getToken } from "@services/token";
 // Utils
 import { useBoard } from "@utils/hook/useBoard";
 import { useTasksList } from "@utils/hook/useTasksList";
@@ -44,13 +43,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         },
       };
     }
-    const board = await getBoardReq(baseUrl, token, id);
-    const user = await getUserReq(baseUrl, token);
-    const tasksList = await getAllTasksListByBoardReq(
-      baseUrl,
-      token,
-      board._id
-    );
+    const board = await getBoardReq(token, id);
+    const user = await getUserReq(token);
+    const tasksList = await getAllTasksListByBoardReq(token, board._id);
     return {
       props: {
         token,
@@ -100,7 +95,7 @@ const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
     handleAUserList,
     showUsersList,
     usersListRef,
-  } = useBoard({ board, baseUrl, token, user, tasksList });
+  } = useBoard({ board, user });
   //******* TASKS LIST HOOK ********//
   const {
     tasksListError,
@@ -115,7 +110,7 @@ const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
     deleteTasksList,
     addNewTask,
     deleteTask,
-  } = useTasksList({ baseUrl, board, token, tasksList });
+  } = useTasksList({ board, tasksList });
 
   return (
     <>

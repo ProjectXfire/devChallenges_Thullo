@@ -2,17 +2,17 @@ import axios from "axios";
 // Models
 import { TTask, TTaskMember, TUpdateTaskDto } from "@models/task";
 // Services
+import apiReq from "@services/interceptors/apiThullo";
 import { handleErrorMessage } from "@services/error";
 
 export const updateTaskReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   taskId: string,
   payload: TUpdateTaskDto
 ) => {
   try {
-    const response = await axios.put<TTask>(
-      `${baseUrl}/task/update/${taskId}`,
+    const response = await apiReq(token).put<TTask>(
+      `/task/update/${taskId}`,
       payload,
       {
         headers: {
@@ -27,20 +27,14 @@ export const updateTaskReq = async (
 };
 
 export const uploadCoverReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   taskId: string,
   payload: FormData
 ) => {
   try {
-    const response = await axios.put<TTask>(
-      `${baseUrl}/task/upload/${taskId}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TTask>(
+      `/task/upload/${taskId}`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -51,19 +45,13 @@ export const uploadCoverReq = async (
 //******** Add or remove users to task ********//
 
 export const assignUserReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   payload: TTaskMember
 ) => {
   try {
-    const response = await axios.put<TTask>(
-      `${baseUrl}/task/assign/member`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TTask>(
+      `/task/assign/member`,
+      payload
     );
     return response.data;
   } catch (error: any) {
@@ -72,19 +60,13 @@ export const assignUserReq = async (
 };
 
 export const removeUserReq = async (
-  baseUrl: string,
-  token: string,
+  token: string | null,
   payload: TTaskMember
 ) => {
   try {
-    const response = await axios.put<TTask>(
-      `${baseUrl}/task/remove/member`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiReq(token).put<TTask>(
+      `/task/remove/member`,
+      payload
     );
     return response.data;
   } catch (error: any) {

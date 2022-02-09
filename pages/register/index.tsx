@@ -33,7 +33,6 @@ import { InputGroup } from "@styles/common/Input";
 import { Alert } from "@styles/common/Alert";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const baseUrl = process.env.API_URL;
   const token = parseCookies(ctx);
   if (token) {
     return {
@@ -44,20 +43,14 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     };
   }
   return {
-    props: {
-      baseUrl,
-    },
+    props: {},
   };
 };
 
-interface Props {
-  baseUrl: string;
-}
-
-const Register = ({ baseUrl }: Props) => {
+const Register = () => {
   //******** STATES ********//
   // Main hook
-  const { onRegister, error, disabled } = useRegister(baseUrl);
+  const { onRegister, error, disabled } = useRegister();
   // Form states
   const {
     handleSubmit,
