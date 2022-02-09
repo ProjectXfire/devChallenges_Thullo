@@ -1,9 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Itim&display=swap");
+
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: "Itim", cursive;
+}
+
+input {
+  font-family: "Itim", cursive;
+}
+
+button,
+textarea {
+  font-family: "Itim", cursive;
+}
+
+p {
+  margin: 0;
 }
 
 a {
@@ -13,4 +27,19 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #e0e0e0;
+}
+::-webkit-scrollbar-thumb {
+  background: #0059bf;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  border-radius: 10px;
 }
