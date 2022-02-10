@@ -27,7 +27,7 @@ import DefaultImgUser from "@public/favicon.ico";
 import { Button } from "@styles/common/Button";
 import { colors, device } from "@styles/variables";
 import { Background } from "@styles/common/Background";
-import { Team } from "@components/board/team";
+import { Team } from "@components/common/team";
 import { DeleteModal } from "@components/common/deleteModal";
 
 interface Props {
@@ -223,33 +223,35 @@ export const SideBoard = ({
                     />
                   ))}
                 </TeamContainer>
+                {showDeleteModal && (
+                  <>
+                    <Background onClick={() => setShowDeleteModal(false)} />
+                    <DeleteModal
+                      itemText={userToDeleteRef.current.name}
+                      onCancel={() => {
+                        userToDeleteRef.current.name = "";
+                        userToDeleteRef.current.userId = "";
+                        setShowDeleteModal(false);
+                      }}
+                      onDelete={() => {
+                        onRemoveMember(userToDeleteRef.current.userId);
+                        userToDeleteRef.current.name = "";
+                        userToDeleteRef.current.userId = "";
+                        setShowDeleteModal(false);
+                      }}
+                    />
+                  </>
+                )}
               </FieldContent>
             </Field>
           </Content>
         </Container>
       )}
-      {showDeleteModal && (
-        <>
-          <Background onClick={() => setShowDeleteModal(false)} />
-          <DeleteModal
-            itemText={userToDeleteRef.current.name}
-            onCancel={() => {
-              userToDeleteRef.current.name = "";
-              userToDeleteRef.current.userId = "";
-              setShowDeleteModal(false);
-            }}
-            onDelete={() => {
-              onRemoveMember(userToDeleteRef.current.userId);
-              userToDeleteRef.current.name = "";
-              userToDeleteRef.current.userId = "";
-              setShowDeleteModal(false);
-            }}
-          />
-        </>
-      )}
     </>
   );
 };
+
+//******** STYLES ********//
 
 interface SProps {
   disabled?: boolean;
@@ -310,6 +312,7 @@ const FieldHeader = styled.div`
 
 const FieldContent = styled.div<SProps>`
   width: 100%;
+  position: relative;
   display: flex;
   gap: 10px;
   p {
@@ -333,8 +336,10 @@ const FieldContent = styled.div<SProps>`
 
 const TeamContainer = styled.div`
   width: 100%;
+  max-height: 300px;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 `;
 
 const FieldActions = styled.div`

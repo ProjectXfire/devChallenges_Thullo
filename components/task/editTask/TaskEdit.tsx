@@ -12,19 +12,19 @@ import {
   MdHomeWork,
   MdAdd,
 } from "react-icons/md";
-import { FaTrash } from "react-icons/fa";
 import sanitizeHTML from "sanitize-html";
-import { toast } from "react-toastify";
 // Utils
-import { uploadFile } from "@utils/uploadFile";
+import { useTask } from "@utils/hook/useTask";
 // Default image
 import TaskCoverTemplate from "@public/tasktemplate.jpg";
 // Components & styled component
 import { colors, device } from "@styles/variables";
 import { Button } from "@styles/common/Button";
 import { Background } from "@styles/common/Background";
-import { useTask } from "@utils/hook/useTask";
+import { SearchByTyping } from "@components/common/SearchByTyping";
 import { Members } from "@components/common/members";
+import { Team } from "@components/common/team";
+import { CardModalContainer } from "@components/common/cardModalContainer";
 
 interface Props {
   baseUrl: string;
@@ -35,7 +35,6 @@ export const TaskEdit = ({ baseUrl, token }: Props) => {
   //******** TASK HOOK ********//
   const {
     taskError,
-    selectedBoard,
     selectedTask,
     selectedTaskBelongToList,
     setSelectedTask,
@@ -44,7 +43,7 @@ export const TaskEdit = ({ baseUrl, token }: Props) => {
     textareaValue,
     setTextareaValue,
     updateTaskDescription,
-    uploadCoverTask,
+    updateTaskCover,
     showHideTaskMembersMenu,
     showTaskMembers,
     setShowTaskMembers,
@@ -53,30 +52,17 @@ export const TaskEdit = ({ baseUrl, token }: Props) => {
     setShowBoardMembers,
     selectedItem,
     setSelectedItem,
-    assignMemberToTask,
+    assignMemberFromTask,
+    removeMemberFromTask,
+    searchedMembers,
+    cleanSearchedMembers,
+    onSearchedMembers,
   } = useTask({
     baseUrl,
     token,
   });
 
   //******** METHODS *******//
-  // Handle upload cover
-  const updateTaskCover = async (e: ChangeEvent<HTMLInputElement>) => {
-    uploadFile(e, (fileType, exceed, reader, formData) => {
-      if (fileType) {
-        toast.error("The file must be an image");
-        return;
-      }
-      if (exceed) {
-        toast.error("The file must not exceed the 100kb");
-        return;
-      }
-      if (reader && formData && selectedTask) {
-        formData.append("coverId", selectedTask.coverId);
-        uploadCoverTask(selectedTask._id, formData);
-      }
-    });
-  };
   // Loader cover
   const loaderCover = () => {
     return selectedTask?.cover as string;
@@ -142,11 +128,14 @@ export const TaskEdit = ({ baseUrl, token }: Props) => {
                       <TaskMembersContainer>
                         <TaskMembers>
                           {selectedTask.members.map((user) => (
-                            <TaskMember key={user._id}>
-                              <Members user={user} />
-                              <p>{`${user.name} ${user.lastname}`}</p>
-                              <Button></Button>
-                            </TaskMember>
+                            <Team
+                              key={user._id}
+                              user={user}
+                              index={-1}
+                              onRemoveMember={(userId) =>
+                                removeMemberFromTask(userId)
+                              }
+                            />
                           ))}
                         </TaskMembers>
                         <ActionBoardMembers>
@@ -162,44 +151,37 @@ export const TaskEdit = ({ baseUrl, token }: Props) => {
                             <MdAdd />
                           </Button>
                           {showBoardMembers && (
-                            <BoardMembersContainer ref={boardMembersRef}>
-                              <>
-                                <Title>Board Members</Title>
-                                <CloseIcon>
-                                  <Button
-                                    type="button"
-                                    bkgColor={colors.lightBlue}
-                                    textColor={colors.blue}
-                                    onClick={() => {
-                                      setShowBoardMembers(false);
-                                      setSelectedItem("");
-                                    }}
+                            <CardModalContainer
+                              cardRef={boardMembersRef}
+                              title="Board Members"
+                              subTitle="Assing a member from board"
+                              btnText="Assign"
+                              iconTop="8px"
+                              iconRight="8px"
+                              showFloatIcon
+                              onIconClick={() => {
+                                setShowBoardMembers(false);
+                                setSelectedItem("");
+                              }}
+                              onActionClick={assignMemberFromTask}
+                            >
+                              <SearchByTyping
+                                onSearch={(value) => onSearchedMembers(value)}
+                                onClean={cleanSearchedMembers}
+                              />
+                              <BoardMembers>
+                                {searchedMembers.map((user) => (
+                                  <BoardMember
+                                    key={user._id}
+                                    selectedItem={user._id === selectedItem}
+                                    onClick={() => setSelectedItem(user._id)}
                                   >
-                                    <MdClear size={15} />
-                                  </Button>
-                                </CloseIcon>
-                                <BoardMembers>
-                                  {selectedBoard.members.map((user) => (
-                                    <BoardMember
-                                      key={user._id}
-                                      selectedItem={user._id === selectedItem}
-                                      onClick={() => setSelectedItem(user._id)}
-                                    >
-                                      <Members user={user} />
-                                      <p>{`${user.name} ${user.lastname}`}</p>
-                                    </BoardMember>
-                                  ))}
-                                </BoardMembers>
-                                <Button
-                                  type="button"
-                                  bkgColor={colors.lightBlue}
-                                  textColor={colors.blue}
-                                  onClick={assignMemberToTask}
-                                >
-                                  Assign
-                                </Button>
-                              </>
-                            </BoardMembersContainer>
+                                    <Members user={user} />
+                                    <p>{`${user.name} ${user.lastname}`}</p>
+                                  </BoardMember>
+                                ))}
+                              </BoardMembers>
+                            </CardModalContainer>
                           )}
                         </ActionBoardMembers>
                       </TaskMembersContainer>
@@ -377,30 +359,8 @@ const TaskMembers = styled.div`
   overflow: auto;
 `;
 
-const TaskMember = styled.div`
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.9rem;
-`;
-
 const ActionBoardMembers = styled.div`
   position: relative;
-`;
-
-const BoardMembersContainer = styled.div`
-  top: 40px;
-  position: absolute;
-  padding: 10px;
-  background-color: white;
-  -webkit-box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
-  box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  z-index: 1;
-  h3 {
-    margin-bottom: 15px;
-  }
 `;
 
 const BoardMembers = styled.div`

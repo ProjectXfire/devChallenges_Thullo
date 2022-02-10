@@ -2,13 +2,13 @@ import React, { useContext } from "react";
 import Image from "next/image";
 // Providers
 import styled from "styled-components";
+import { FaTrash } from "react-icons/fa";
 // Models
 import { TUser } from "@models/user";
-// Context
-import { BoardContext } from "@utils/context/board/BoardContext";
 // Images
 import DefaultImgUser from "@public/favicon.ico";
 import { colors } from "@styles/variables";
+import { Button } from "@styles/common/Button";
 
 interface Props {
   user: TUser;
@@ -41,14 +41,15 @@ export const Team = ({ user, index, onRemoveMember }: Props) => {
       {index === 0 ? (
         <span>Admin</span>
       ) : (
-        <button
+        <Button
           type="button"
+          bkgColor={colors.alert}
           onClick={() =>
             onRemoveMember(user._id, `${user.name} ${user.lastname}`)
           }
         >
-          Remove
-        </button>
+          <FaTrash size={15} />
+        </Button>
       )}
     </Container>
   );
@@ -65,16 +66,5 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-  button {
-    background-color: white;
-    outline: none;
-    border: 1.5px solid ${colors.alert};
-    border-radius: 10px;
-    color: ${colors.alert};
-    cursor: pointer;
-    &:active {
-      transform: scale(0.9);
-    }
   }
 `;

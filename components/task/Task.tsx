@@ -14,6 +14,7 @@ import TaskCoverTemplate from "@public/tasktemplate.jpg";
 import { colors } from "@styles/variables";
 import { Background } from "@styles/common/Background";
 import { DeleteModal } from "@components/common/deleteModal";
+import { FloatIcon } from "@components/common/floatIcon";
 
 interface Props {
   task: TTask;
@@ -50,25 +51,22 @@ export const Task = ({ task, index, inTasksList, onDelete }: Props) => {
           isDragging={snapshot.isDragging}
           {...provided.dragHandleProps}
         >
-          <RemoveIcon
-            type="button"
+          <FloatIcon
             iconTop="2px"
             iconRight="2px"
-            iconBkgColor={colors.alert}
+            iconBkgColor={colors.alertLight}
             onClick={() => setShowDeleteModal(true)}
           >
-            <MdClear size={15} color="white" />
-          </RemoveIcon>
-          <RemoveIcon
-            type="button"
+            <MdClear size={15} color={colors.alert} />
+          </FloatIcon>
+          <FloatIcon
             iconTop="30px"
             iconRight="2px"
-            iconBkgColor={colors.blue}
+            iconBkgColor={colors.lightBlue}
             onClick={setTask}
           >
-            <MdMode size={15} color="white" />
-          </RemoveIcon>
-
+            <MdMode size={15} color={colors.blue} />
+          </FloatIcon>
           {task.cover ? (
             <ImageContainer>
               <Image
@@ -143,25 +141,7 @@ const ImageContainer = styled.div`
   overflow: hidden;
 `;
 
-const RemoveIcon = styled.button<SProps>`
-  padding: 4px;
-  display: flex;
-  position: absolute;
-  top: ${(props) => props.iconTop};
-  right: ${(props) => props.iconRight};
-  z-index: 1;
-  background-color: white;
-  border-radius: 50%;
-  background-color: ${(props) =>
-    props.iconBkgColor ? props.iconBkgColor : "black"};
-  cursor: pointer;
-  border: none;
-  &:active {
-    transform: scale(0.9);
-  }
-`;
-
 const Title = styled.h3`
   margin: 8px 0px;
-  color: ${colors.blue};
+  color: ${colors.darkblue};
 `;

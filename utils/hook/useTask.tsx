@@ -1,12 +1,18 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
+// Providers
+import { toast } from "react-toastify";
+// Models
+import { TUser } from "@models/user";
 // Services
 import {
   updateTaskReq,
   uploadCoverReq,
   assignUserReq,
+  removeUserReq,
 } from "@services/app/task";
 // Utils
 import { updateTasksListFromTask } from "@utils/updateTasksListFromTask";
+import { uploadFile } from "@utils/uploadFile";
 // Context
 import { BoardContext } from "@utils/context/board/BoardContext";
 
@@ -46,6 +52,8 @@ export const useTask = ({ baseUrl, token }: Props) => {
   const [showBoardMembers, setShowBoardMembers] = useState(false);
   // Change color on selected item
   const [selectedItem, setSelectedItem] = useState("");
+  // Temp searched members
+  const [searchedMembers, setSearchedMembers] = useState<TUser[]>([]);
 
   //******** METHODS ********//
   // Handle assign members menu
@@ -64,7 +72,24 @@ export const useTask = ({ baseUrl, token }: Props) => {
       setTaskError(error.message);
     }
   };
-  // Upload or update cover
+
+  // Handle upload cover
+  const updateTaskCover = async (e: ChangeEvent<HTMLInputElement>) => {
+    uploadFile(e, (fileType, exceed, reader, formData) => {
+      if (fileType) {
+        toast.error("The file must be an image");
+        return;
+      }
+      if (exceed) {
+        toast.error("The file must not exceed the 100kb");
+        return;
+      }
+      if (reader && formData && selectedTask) {
+        formData.append("coverId", selectedTask.coverId);
+        uploadCoverTask(selectedTask._id, formData);
+      }
+    });
+  };
   const uploadCoverTask = async (taskId: string, payload: FormData) => {
     if (selectedTask) {
       try {
@@ -83,7 +108,7 @@ export const useTask = ({ baseUrl, token }: Props) => {
   };
 
   // Assign member to task
-  const assignMemberToTask = async () => {
+  const assignMemberFromTask = async () => {
     if (selectedTask && selectedItem) {
       try {
         const updatedTask = await assignUserReq(null, {
@@ -96,6 +121,37 @@ export const useTask = ({ baseUrl, token }: Props) => {
         setTaskError(error.message);
       }
     }
+  };
+
+  // Remove member from task
+  const removeMemberFromTask = async (userId: string) => {
+    if (selectedTask) {
+      try {
+        const updatedTask = await removeUserReq(null, {
+          taskId: selectedTask._id,
+          userId,
+        });
+        updateTask(updatedTask);
+      } catch (error: any) {
+        setTaskError(error.message);
+      }
+    }
+  };
+
+  // Search members from board list
+  const onSearchedMembers = (searchedValue: string) => {
+    if (searchedValue) {
+      const searchedMembers = selectedBoard.members.filter((user) =>
+        user.completeName.includes(searchedValue.toLowerCase())
+      );
+      setSearchedMembers(searchedMembers);
+    } else {
+      setSearchedMembers(selectedBoard.members);
+    }
+  };
+  // Clean searched members
+  const cleanSearchedMembers = () => {
+    setSearchedMembers(selectedBoard.members);
   };
 
   //******** EFFECTS ********//
@@ -120,6 +176,11 @@ export const useTask = ({ baseUrl, token }: Props) => {
     };
   }, [showBoardMembers]);
 
+  // Load members in searched state
+  useEffect(() => {
+    setSearchedMembers(selectedBoard.members);
+  }, [selectedBoard]);
+
   return {
     taskError,
     selectedBoard,
@@ -131,7 +192,7 @@ export const useTask = ({ baseUrl, token }: Props) => {
     textareaValue,
     setTextareaValue,
     updateTaskDescription,
-    uploadCoverTask,
+    updateTaskCover,
     showHideTaskMembersMenu,
     showTaskMembers,
     setShowTaskMembers,
@@ -140,6 +201,10 @@ export const useTask = ({ baseUrl, token }: Props) => {
     setShowBoardMembers,
     selectedItem,
     setSelectedItem,
-    assignMemberToTask,
+    assignMemberFromTask,
+    removeMemberFromTask,
+    searchedMembers,
+    cleanSearchedMembers,
+    onSearchedMembers,
   };
 };

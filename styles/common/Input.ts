@@ -10,7 +10,7 @@ interface Props {
 
 export const InputGroup = styled.div<Props>`
   display: flex;
-  padding: 10px 15px;
+  padding: 8px 12px;
   margin-bottom: 10px;
   gap: 10px;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -30,6 +30,9 @@ export const InputGroup = styled.div<Props>`
       color: rgba(0, 0, 0, 0.5);
       opacity: 0.5;
     }
+  }
+  svg {
+    cursor: pointer;
   }
 `;
 
