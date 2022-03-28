@@ -1,18 +1,19 @@
 import React, { useContext, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 // Providers
 import styled from "styled-components";
 import { MdMenu, MdArrowDropDown } from "react-icons/md";
+import { Background } from "@styles/common/Background";
+// Hooks
+import { useHeader } from "./useHeader";
 // Logo
 import Logo from "@public/Logo.svg";
-import DefaultImg from "@public/favicon.ico";
 // Styles
 import { colors, device } from "@styles/variables";
 import { Button } from "@styles/common/Button";
-import { Background } from "@styles/common/Background";
-import { useHeader } from "./useHeader";
+// Components
+import { DefaultImage } from "@components/common/defaultImage";
 
 export const Header = () => {
   //******** HOOKS ********//
@@ -57,13 +58,7 @@ export const Header = () => {
                     alt="avatar"
                   />
                 ) : (
-                  <ImageLink
-                    src={DefaultImg}
-                    width={30}
-                    height={30}
-                    alt="avatar"
-                    priority
-                  />
+                  <DefaultImage name={user.name} lastname={user.lastname} />
                 )}
                 <p>{user.username}</p>
                 <Dropdown ref={dropdownRef}>
@@ -102,13 +97,7 @@ export const Header = () => {
                     alt="avatar"
                   />
                 ) : (
-                  <ImageLink
-                    src={DefaultImg}
-                    width={30}
-                    height={30}
-                    alt="avatar"
-                    priority
-                  />
+                  <DefaultImage name={user.name} lastname={user.lastname} />
                 )}
                 {user.username}
               </div>

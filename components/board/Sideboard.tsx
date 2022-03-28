@@ -21,14 +21,13 @@ import {
 import { BoardContext } from "@utils/context/board/BoardContext";
 // Utils
 import { formattingDate } from "@utils/dateFormat";
-// Images
-import DefaultImgUser from "@public/favicon.ico";
 // Components & Styled components
 import { Button } from "@styles/common/Button";
 import { colors, device } from "@styles/variables";
 import { Background } from "@styles/common/Background";
 import { Team } from "@components/common/team";
 import { DeleteModal } from "@components/common/deleteModal";
+import { DefaultImage } from "@components/common/defaultImage";
 
 interface Props {
   onClose: () => void;
@@ -126,12 +125,9 @@ export const SideBoard = ({
                     alt="avatar"
                   />
                 ) : (
-                  <Image
-                    src={DefaultImgUser}
-                    width={40}
-                    height={40}
-                    objectFit="cover"
-                    alt="avatar"
+                  <DefaultImage
+                    name={selectedBoard.members[0].name}
+                    lastname={selectedBoard.members[0].lastname}
                   />
                 )}
                 <div>

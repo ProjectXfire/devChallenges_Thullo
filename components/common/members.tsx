@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { TUser } from "@models/user";
 // Images
 import DefaultImgUser from "@public/favicon.ico";
+// Components
+import { DefaultImage } from "@components/common/defaultImage";
 
 interface Props {
   user: TUser;
@@ -32,14 +34,7 @@ export const Members = ({ user, width = 30, height = 30 }: Props) => {
           objectFit="cover"
         />
       ) : (
-        <ImageNext
-          src={DefaultImgUser}
-          alt="default"
-          width={width}
-          height={height}
-          priority
-          objectFit="cover"
-        />
+        <DefaultImage name={user.name} lastname={user.lastname} />
       )}
     </>
   );

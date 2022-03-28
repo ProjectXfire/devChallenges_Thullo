@@ -9,9 +9,10 @@ import { TUser } from "@models/user";
 // Contexts
 import { BoardContext } from "@utils/context/board/BoardContext";
 // Images
-import DefaultImgUser from "@public/favicon.ico";
 import { colors } from "@styles/variables";
 import { Button } from "@styles/common/Button";
+// Components
+import { DefaultImage } from "@components/common/defaultImage";
 
 interface Props {
   user: TUser;
@@ -43,12 +44,12 @@ export const Team = ({
           <Image
             src="avatar"
             loader={loaderAvatar}
-            width={25}
-            height={25}
+            width={30}
+            height={30}
             alt="avatar"
           />
         ) : (
-          <Image src={DefaultImgUser} width={30} height={30} alt="avatar" />
+          <DefaultImage name={user.name} lastname={user.lastname} />
         )}
         <p>{user.name + " " + user.lastname}</p>
       </div>
