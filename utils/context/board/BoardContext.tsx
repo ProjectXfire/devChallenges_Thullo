@@ -2,16 +2,15 @@ import { createContext, useReducer, useState } from "react";
 // Models
 import { TBoard } from "@models/board";
 import { TTasksList } from "@models/tasksList";
-import { TTask } from "@models/task";
 // Reducer
 import { boardReducer } from "./BoardReducer";
+import { TUser } from "@models/user";
 
 export interface IBoardStates {
   boards: TBoard[];
   selectedBoard: TBoard;
   tasksListByBoard: TTasksList[];
-  selectedTask: TTask | null;
-  selectedTaskBelongToList: string;
+  selectedUser: TUser | null;
 }
 
 interface IBoardProps {
@@ -19,16 +18,17 @@ interface IBoardProps {
   setBoard: (board: TBoard) => void;
   setBoards: (boards: TBoard[]) => void;
   setSelectedBoard: (board: TBoard) => void;
+  clearSelectedBoard: () => void;
+  setSelectedUser: (user: TUser) => void;
   setTasksLists: (tasksLists: TTasksList[]) => void;
   setTasksList: (tasksList: TTasksList) => void;
   updateTasksList: (tasksList: TTasksList, index: number) => void;
   removeTasksList: (tasksListId: string) => void;
-  setSelectedTask: (task: TTask | null, tasksList: string) => void;
-  updateTask: (task: TTask) => void;
 }
 
 const boardInitValues: IBoardStates = {
   boards: [],
+  selectedUser: null,
   tasksListByBoard: [],
   selectedBoard: {
     _id: "",
@@ -39,8 +39,6 @@ const boardInitValues: IBoardStates = {
     description: "",
     createdAt: "",
   },
-  selectedTask: null,
-  selectedTaskBelongToList: "",
 };
 
 export const BoardContext = createContext({} as IBoardProps);
@@ -63,6 +61,24 @@ export const BoardProvider: React.FC = ({ children }) => {
   const setSelectedBoard = (board: TBoard) => {
     dispatch({ type: "selectedBoard", payload: board });
   };
+  // Set the selected board
+  const setSelectedUser = (user: TUser) => {
+    dispatch({ type: "selectedUser", payload: user });
+  };
+  const clearSelectedBoard = () => {
+    dispatch({
+      type: "clearSelectedBoard",
+      payload: {
+        _id: "",
+        cover: "",
+        isPublic: false,
+        members: [],
+        title: "",
+        description: "",
+        createdAt: "",
+      },
+    });
+  };
   //******** TASKS LIST ********//
   // Get all tasks list by board
   const setTasksLists = (tasksLists: TTasksList[]) => {
@@ -80,14 +96,6 @@ export const BoardProvider: React.FC = ({ children }) => {
   const removeTasksList = (tasksListId: string) => {
     dispatch({ type: "removeTasksList", payload: tasksListId });
   };
-  //******** TASK ********//
-  // Set selected task
-  const setSelectedTask = (task: TTask | null, tasksList: string) => {
-    dispatch({ type: "selectedTask", payload: { task, tasksList } });
-  };
-  const updateTask = (task: TTask) => {
-    dispatch({ type: "updateTask", payload: task });
-  };
 
   return (
     <BoardContext.Provider
@@ -96,12 +104,12 @@ export const BoardProvider: React.FC = ({ children }) => {
         setBoard,
         setBoards,
         setSelectedBoard,
+        clearSelectedBoard,
+        setSelectedUser,
         setTasksLists,
         setTasksList,
         updateTasksList,
         removeTasksList,
-        setSelectedTask,
-        updateTask,
       }}
     >
       {children}

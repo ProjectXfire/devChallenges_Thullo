@@ -9,18 +9,20 @@ import { UserContext } from "@utils/context/user/UserContext";
 import { useRouter } from "next/router";
 import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 // Utils
-import { uploadFile } from "@utils/uploadFile";
+import { uploadImageFile } from "@utils/uploadImageFile";
 
 export const useProfile = (data: TUser) => {
   //******** CONTEXT  ********//
   // User
-  const { setUser } = useContext(UserContext);
+  const { setUser, clearUser } = useContext(UserContext);
 
   //******** VARAIBLES ********//
   const router = useRouter();
   const formDataRef = useRef<FormData>();
 
   //******** STATES ********//
+  // Handle session
+  const [sessionExpired, setSessionExpired] = useState(false);
   // Handle error on request
   const [error, setError] = useState("");
   // Handle disable inputs on request
@@ -60,7 +62,7 @@ export const useProfile = (data: TUser) => {
 
   // Handle change avatar
   const changeAvatar = (e: ChangeEvent<HTMLInputElement>) => {
-    uploadFile(e, (fileType, exceed, reader, formData) => {
+    uploadImageFile(e, (fileType, exceed, reader, formData) => {
       if (fileType) {
         toast.error("The file must be an image");
         return;
@@ -82,6 +84,17 @@ export const useProfile = (data: TUser) => {
 
   useEffect(() => {
     setUser(data);
+    const currentCookie = document.cookie;
+    const time = setInterval(() => {
+      if (currentCookie !== document.cookie) {
+        clearInterval(time);
+        clearUser();
+        setSessionExpired(true);
+      }
+    }, 1000);
+    return () => {
+      clearInterval(time);
+    };
   }, []);
 
   //******** RETURN STATES AND METHODS ********//
@@ -91,5 +104,7 @@ export const useProfile = (data: TUser) => {
     disabled,
     tempAvatar,
     changeAvatar,
+    sessionExpired,
+    setSessionExpired,
   };
 };

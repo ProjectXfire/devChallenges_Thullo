@@ -1,4 +1,3 @@
-import axios from "axios";
 // Services
 import { handleErrorMessage } from "@services/error";
 import { setToken } from "@services/token";

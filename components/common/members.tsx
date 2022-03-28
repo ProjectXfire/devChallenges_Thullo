@@ -9,9 +9,11 @@ import DefaultImgUser from "@public/favicon.ico";
 
 interface Props {
   user: TUser;
+  width?: number;
+  height?: number;
 }
 
-export const Members = ({ user }: Props) => {
+export const Members = ({ user, width = 30, height = 30 }: Props) => {
   //******** METHODS ********//
   // Load image by URL
   const myLoaderAvatar = () => {
@@ -25,16 +27,18 @@ export const Members = ({ user }: Props) => {
           src="avatar"
           loader={myLoaderAvatar}
           alt="default"
-          width={30}
-          height={30}
+          width={width}
+          height={height}
+          objectFit="cover"
         />
       ) : (
         <ImageNext
           src={DefaultImgUser}
           alt="default"
-          width={30}
-          height={30}
+          width={width}
+          height={height}
           priority
+          objectFit="cover"
         />
       )}
     </>

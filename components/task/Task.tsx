@@ -3,11 +3,12 @@ import Image from "next/image";
 // Providers
 import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
-import { MdMode, MdClear } from "react-icons/md";
+import { MdMode, MdClear, MdOutlineAttachFile, MdChat } from "react-icons/md";
+
 // Models
 import { TTask } from "@models/task";
 // Context
-import { BoardContext } from "@utils/context/board/BoardContext";
+import { TaskContext } from "@utils/context/Task/TaskContext";
 // Default image
 import TaskCoverTemplate from "@public/tasktemplate.jpg";
 // Components & Styled components
@@ -15,6 +16,8 @@ import { colors } from "@styles/variables";
 import { Background } from "@styles/common/Background";
 import { DeleteModal } from "@components/common/deleteModal";
 import { FloatIcon } from "@components/common/floatIcon";
+import { LabelTask } from "@components/common/labelTask";
+import { Members } from "@components/common/members";
 
 interface Props {
   task: TTask;
@@ -25,8 +28,8 @@ interface Props {
 
 export const Task = ({ task, index, inTasksList, onDelete }: Props) => {
   //******** CONTEXT ********//
-  // Board
-  const { setSelectedTask } = useContext(BoardContext);
+  // Task
+  const { setSelectedTask } = useContext(TaskContext);
 
   //******** STATES ********//
   // Open or close delete modal
@@ -90,6 +93,35 @@ export const Task = ({ task, index, inTasksList, onDelete }: Props) => {
             </ImageContainer>
           )}
           <Title>{task.title}</Title>
+          <LabelsContainer>
+            {task.labels.map((label) => (
+              <LabelTask
+                key={label._id}
+                title={label.title}
+                color={label.color}
+              />
+            ))}
+          </LabelsContainer>
+          <ResponsablesCountContainer>
+            <ResponsablesContainer>
+              {task.members.map((user) => (
+                <Members user={user} key={user._id} />
+              ))}
+            </ResponsablesContainer>
+            <CountContainer>
+              {task.countAttachments > 0 && (
+                <CountItems>
+                  <MdOutlineAttachFile size={15} />
+                  {task.countAttachments}
+                </CountItems>
+              )}
+              {task.countComments > 0 && (
+                <CountItems>
+                  <MdChat size={15} /> {task.countComments}
+                </CountItems>
+              )}
+            </CountContainer>
+          </ResponsablesCountContainer>
           {showDeleteModal && (
             <>
               <Background onClick={() => setShowDeleteModal(false)} />
@@ -141,7 +173,38 @@ const ImageContainer = styled.div`
   overflow: hidden;
 `;
 
-const Title = styled.h3`
+const Title = styled.p`
   margin: 8px 0px;
-  color: ${colors.darkblue};
+  color: ${colors.blue};
+  font-weight: bold;
+`;
+
+const LabelsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+`;
+
+const ResponsablesCountContainer = styled.div`
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ResponsablesContainer = styled.div`
+  width: 100%;
+  display: flex;
+`;
+
+const CountContainer = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const CountItems = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.2);
 `;

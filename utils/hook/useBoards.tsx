@@ -1,29 +1,30 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 // Providers
 import { toast } from "react-toastify";
 // Models
-import { TBoard } from "@models/board";
-// Models
+import { TBoardResponse } from "@models/board";
 import { TUser } from "@models/user";
 // Services
-import { findUserInBoardReq } from "@services/app/board";
+import { findUserInBoardReq, getBoardsReq } from "@services/app/board";
 // User context
 import { UserContext } from "@utils/context/user/UserContext";
 import { BoardContext } from "@utils/context/board/BoardContext";
+// Utils
+import { DOCUMENTS_PER_PAGE } from "@utils/variables";
 
 interface Props {
   dataUser: TUser;
-  dataBoards: TBoard[];
+  boardResponse: TBoardResponse;
 }
 
-export const useBoards = ({ dataBoards, dataUser }: Props) => {
+export const useBoards = ({ boardResponse, dataUser }: Props) => {
   //******** VARIABLES ********//
   const router = useRouter();
 
   //******** CONTEXTS ********//
   // User
-  const { setUser } = useContext(UserContext);
+  const { setUser, clearUser } = useContext(UserContext);
   const {
     setBoards,
     states: { boards },
@@ -32,21 +33,99 @@ export const useBoards = ({ dataBoards, dataUser }: Props) => {
   //******** STATES ********//
   // Modal
   const [showModal, setShowModal] = useState(false);
-  // Error
-  const [error, setError] = useState("");
+  // Handle session
+  const [sessionExpired, setSessionExpired] = useState(false);
+  // Search board value
+  const [searchBoardValue, setSearchBoardValue] = useState("");
+  // Handle pages
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalData, setTotalData] = useState(boardResponse.total);
 
   //******** METHODS ********//
-  const validateAccessToBoard = async (boardId: string) => {
-    setError("");
+  // Verify if you have been added to the board selected
+  const validateAccessToBoard = async (boardId: string, isPublic: boolean) => {
     try {
       const isAMember = await findUserInBoardReq(null, boardId);
-      if (isAMember) {
+      if (isAMember || isPublic) {
         router.push(`/${boardId}`);
         return;
       }
-      toast.error("You are not a member, please contact with the admin");
+      toast.error("This board is private, please contact the admin.");
     } catch (error: any) {
-      setError(error.message);
+      router.push({
+        pathname: "/error",
+        query: {
+          errorMessage: error.message,
+        },
+      });
+    }
+  };
+  // set search board value
+  const handleSearchBoardValue = async (value: string) => {
+    setSearchBoardValue(value);
+    if (!value) {
+      try {
+        const boardResponse = await getBoardsReq(null, 1, DOCUMENTS_PER_PAGE);
+        setCurrentPage(1);
+        setBoards(boardResponse.result);
+        setTotalData(boardResponse.total);
+      } catch (error: any) {
+        router.push({
+          pathname: "/error",
+          query: {
+            errorMessage: error.message,
+          },
+        });
+      }
+    }
+  };
+
+  // Search boards
+  const searchBoards = async () => {
+    if (searchBoardValue) {
+      try {
+        const boardResponse = await getBoardsReq(
+          null,
+          1,
+          DOCUMENTS_PER_PAGE,
+          searchBoardValue
+        );
+        setCurrentPage(1);
+        setBoards(boardResponse.result);
+        setTotalData(boardResponse.total);
+      } catch (error: any) {
+        router.push({
+          pathname: "/error",
+          query: {
+            errorMessage: error.message,
+          },
+        });
+      }
+    }
+  };
+  // Handle pagination
+  const handleNextPage = async (nextPage: number) => {
+    try {
+      let boardResponse: TBoardResponse;
+      if (searchBoardValue) {
+        boardResponse = await getBoardsReq(
+          null,
+          nextPage,
+          DOCUMENTS_PER_PAGE,
+          searchBoardValue
+        );
+      } else {
+        boardResponse = await getBoardsReq(null, nextPage, DOCUMENTS_PER_PAGE);
+      }
+      setCurrentPage(nextPage);
+      setBoards(boardResponse.result);
+    } catch (error: any) {
+      router.push({
+        pathname: "/error",
+        query: {
+          errorMessage: error.message,
+        },
+      });
     }
   };
 
@@ -54,7 +133,18 @@ export const useBoards = ({ dataBoards, dataUser }: Props) => {
   // Set user in context
   useEffect(() => {
     setUser(dataUser);
-    setBoards(dataBoards);
+    setBoards(boardResponse.result);
+    const currentCookie = document.cookie;
+    const time = setInterval(() => {
+      if (currentCookie !== document.cookie) {
+        clearInterval(time);
+        clearUser();
+        setSessionExpired(true);
+      }
+    }, 1000);
+    return () => {
+      clearInterval(time);
+    };
   }, []);
 
   return {
@@ -62,6 +152,14 @@ export const useBoards = ({ dataBoards, dataUser }: Props) => {
     setShowModal,
     boards,
     validateAccessToBoard,
-    error,
+    searchBoardValue,
+    handleSearchBoardValue,
+    searchBoards,
+    currentPage,
+    handleNextPage,
+    totalData,
+    sessionExpired,
+    setSessionExpired,
+    router,
   };
 };

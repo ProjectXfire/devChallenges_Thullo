@@ -2,6 +2,7 @@
 import { TBoard } from "@models/board";
 import { TTask } from "@models/task";
 import { TTasksList } from "@models/tasksList";
+import { TUser } from "@models/user";
 // States
 import { IBoardStates } from "./BoardContext";
 
@@ -9,6 +10,11 @@ type BoardAction =
   | { type: "addBoard"; payload: TBoard }
   | { type: "allBoards"; payload: TBoard[] }
   | { type: "selectedBoard"; payload: TBoard }
+  | { type: "selectedUser"; payload: TUser | null }
+  | {
+      type: "clearSelectedBoard";
+      payload: TBoard;
+    }
   | { type: "allTasksList"; payload: TTasksList[] }
   | { type: "addTasksList"; payload: TTasksList }
   | {
@@ -43,10 +49,20 @@ export const boardReducer = (
         ...states,
         selectedBoard: action.payload,
       };
+    case "selectedUser":
+      return {
+        ...states,
+        selectedUser: action.payload,
+      };
     case "addBoard":
       return {
         ...states,
         boards: [...states.boards, action.payload],
+      };
+    case "clearSelectedBoard":
+      return {
+        ...states,
+        selectedBoard: action.payload,
       };
     case "allTasksList":
       return {
@@ -73,17 +89,6 @@ export const boardReducer = (
         tasksListByBoard: states.tasksListByBoard.filter(
           (item) => item._id !== action.payload
         ),
-      };
-    case "selectedTask":
-      return {
-        ...states,
-        selectedTask: action.payload.task,
-        selectedTaskBelongToList: action.payload.tasksList,
-      };
-    case "updateTask":
-      return {
-        ...states,
-        selectedTask: action.payload,
       };
     default:
       return states;

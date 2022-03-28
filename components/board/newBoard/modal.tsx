@@ -19,11 +19,10 @@ import { colors } from "@styles/variables";
 import { Alert } from "@styles/common/Alert";
 
 interface Props {
-  isOpen: boolean;
   onClose: () => void;
 }
 
-export const BoardModal = ({ isOpen, onClose }: Props) => {
+export const BoardModal = ({ onClose }: Props) => {
   // MAIN HOOK
   const {
     onCreateBoard,
@@ -47,17 +46,9 @@ export const BoardModal = ({ isOpen, onClose }: Props) => {
     reset,
   } = useForm<TBoardForm>({ resolver: joiResolver(BoardSchema) });
 
-  //******** EFFECTS ********//
-  // Reset form values after create new board
-  useEffect(() => {
-    if (!tempAvatar) {
-      setValue("title", "");
-    }
-  }, [tempAvatar]);
-
   //******** RENDERS ********//
   return (
-    <Container isOpen={isOpen}>
+    <Container>
       <ImageContainer>
         {tempAvatar ? (
           <ImageNext
@@ -153,23 +144,19 @@ export const BoardModal = ({ isOpen, onClose }: Props) => {
   );
 };
 
-interface SProps {
-  isOpen?: boolean;
-}
-
-const Container = styled.section<SProps>`
+const Container = styled.section`
   width: 100%;
   max-width: 300px;
-  position: absolute;
   padding: 10px;
+  position: absolute;
+  top: 150px;
+  left: calc(50% - 150px);
   background-color: white;
   border-radius: 10px;
   -webkit-box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
   z-index: 3;
-  //transition: all 1s;
-  transform: ${(props) =>
-    props.isOpen ? "translateY(0)" : "translateY(-140%)"};
+  transform: translateY(0%);
 `;
 
 const ImageContainer = styled.div`

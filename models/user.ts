@@ -1,4 +1,5 @@
-import Joi, { string } from "joi";
+import Joi from "joi";
+import { TPermission } from "./permission";
 
 export type TUserResponse = {
   message: string;
@@ -33,6 +34,15 @@ export type TUser = {
   avatar: string;
   avatarId: string;
   completeName: string;
+};
+
+export type TUserPermissionsByBoard = {
+  _id: string;
+  updatedAt: string;
+  createdAt: string;
+  permissions: TPermission[];
+  boardId: string;
+  userId: string;
 };
 
 export const UserLoginSchema = Joi.object<UserLoginDto>({

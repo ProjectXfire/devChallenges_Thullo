@@ -24,6 +24,7 @@ export const UserProvider: React.FC = ({ children }) => {
       lastname: "",
       name: "",
       username: "",
+      completeName: "",
     },
   });
 
@@ -41,6 +42,7 @@ export const UserProvider: React.FC = ({ children }) => {
         lastname: "",
         name: "",
         username: "",
+        completeName: "",
       },
     });
   };

@@ -1,19 +1,26 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+// Providers
+import { toast } from "react-toastify";
 // Models
 import { TBoard } from "@models/board";
 import { TUser } from "@models/user";
-import { TTasksList } from "@models/tasksList";
 // Services
 import {
   updateBoardReq,
   removeMemberReq,
   addMemberReq,
 } from "@services/app/board";
-import { createTasksListReq } from "@services/app/tasksList";
 import { searchUsersReq } from "@services/app/user";
 // Context
 import { BoardContext } from "@utils/context/board/BoardContext";
 import { UserContext } from "@utils/context/user/UserContext";
+import {
+  disconnectSocket,
+  initiateSocket,
+  subscribeToChat,
+} from "@services/socket/handleSocket";
+import { TTasksList } from "@models/tasksList";
 
 interface Props {
   board: TBoard;
@@ -25,26 +32,33 @@ export const useBoard = ({ user, board }: Props) => {
   const isPublicMenuRef = useRef<HTMLDivElement>(null);
   const addMemberRef = useRef<HTMLDivElement>(null);
   const usersListRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   //******** STATES ********//
   // Context
   const {
-    states: { selectedBoard },
+    states: { selectedBoard, tasksListByBoard },
     setSelectedBoard,
+    clearSelectedBoard,
+    setTasksLists,
   } = useContext(BoardContext);
-  const { setUser } = useContext(UserContext);
-  // Handle error on request
-  const [boardError, setBoardError] = useState("");
+  const { setUser, clearUser } = useContext(UserContext);
+  // Handle session
+  const [sessionExpired, setSessionExpired] = useState(false);
   // Show isPublic menu
   const [showIsPublicMenu, setShowIsPublicMenu] = useState(false);
   // Show add member menu
   const [showAddMemberMenu, setShowAddMemberMenu] = useState(false);
   // Sideboard
   const [openSideBoard, setOpenSideBoard] = useState(false);
+  // Handle text area value on edit board
+  const [textareaValue, setTextareaValue] = useState("");
   // Users list
   const [showUsersList, setShowUsersList] = useState(false);
   // Set users searched
   const [searchedUsers, setSearchedUsers] = useState<TUser[]>([]);
+  // Show permissions modal
+  const [showPermissions, setshowPermissions] = useState(false);
 
   //******** METHODS ********//
   // Handle open and close IsPublic menu
@@ -62,63 +76,126 @@ export const useBoard = ({ user, board }: Props) => {
   // Handle on update isPublic
   const updateBoard = async (
     isPublic: boolean | null = null,
-    title: string | null = null,
-    description: string | null = null
+    title: string | null = null
   ) => {
-    setBoardError("");
     try {
       const payload = {
         title: title || selectedBoard.title,
         isPublic: isPublic !== null ? isPublic : selectedBoard.isPublic,
-        description: description || selectedBoard.description,
+        description: textareaValue,
+        authBoardId: board._id,
       };
       const updatedBoard = await updateBoardReq(null, board._id, payload);
       setSelectedBoard(updatedBoard);
     } catch (error: any) {
-      setBoardError(error.message);
+      if (error.message.includes("401")) {
+        toast.error("Action denied");
+        setTextareaValue("");
+      } else {
+        router.push({
+          pathname: "/error",
+          query: {
+            errorMessage: error.message,
+          },
+        });
+      }
     }
   };
   // Handle open and close sideboard
   const handleSideBoard = () => {
     setOpenSideBoard(!openSideBoard);
   };
-  // Remove member
-  const onRemoveMember = async (userId: string) => {
-    setBoardError("");
-    try {
-      const updatedBoard = await removeMemberReq(null, board._id, userId);
-      setSelectedBoard(updatedBoard);
-    } catch (error: any) {
-      setBoardError(error.message);
-    }
-  };
   // Search users
   const searchUsers = async (searchValue: string) => {
-    setBoardError("");
     try {
       if (searchValue) {
         const users = await searchUsersReq(null, searchValue);
         setSearchedUsers(users);
       }
     } catch (error: any) {
-      setBoardError(error.message);
+      router.push({
+        pathname: "/error",
+        query: {
+          errorMessage: error.message,
+        },
+      });
     }
   };
   // Add user to board
   const addUserToBoard = async (userId: string) => {
     try {
-      const updatedBoard = await addMemberReq(null, board._id, userId);
+      if (userId) {
+        const updatedBoard = await addMemberReq(null, board._id, userId);
+        setSelectedBoard(updatedBoard);
+      }
+    } catch (error: any) {
+      if (error.message.includes("401")) {
+        toast.error("Action denied");
+      } else {
+        router.push({
+          pathname: "/error",
+          query: {
+            errorMessage: error.message,
+          },
+        });
+      }
+    }
+  };
+  // Remove member
+  const onRemoveMember = async (userId: string) => {
+    try {
+      const updatedBoard = await removeMemberReq(null, board._id, userId);
       setSelectedBoard(updatedBoard);
     } catch (error: any) {
-      setBoardError(error.message);
+      if (error.message.includes("401")) {
+        toast.error("Action denied");
+      } else {
+        router.push({
+          pathname: "/error",
+          query: {
+            errorMessage: error.message,
+          },
+        });
+      }
     }
   };
 
   //******** EFFECTS ********//
+  // Connect and disconnect to socket to handle task
+  useEffect(() => {
+    if (selectedBoard._id.length > 0) {
+      initiateSocket(selectedBoard._id);
+      subscribeToChat((err: any, data: TTasksList[]) => {
+        if (err) return;
+        setTasksLists(data);
+      });
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [tasksListByBoard]);
+  // Clear selected board
+  useEffect(() => {
+    return () => {
+      clearSelectedBoard();
+    };
+  }, []);
+
   // Set the board selected, set its tasks list and tasks
   useEffect(() => {
     setSelectedBoard(board);
     setUser(user);
+    const currentCookie = document.cookie;
+    const time = setInterval(() => {
+      if (currentCookie !== document.cookie) {
+        clearInterval(time);
+        clearUser();
+        setSessionExpired(true);
+      }
+    }, 1000);
+    return () => {
+      clearInterval(time);
+    };
   }, []);
   // Close isPublicMenu on onClick event outside menu
   useEffect(() => {
@@ -159,7 +236,6 @@ export const useBoard = ({ user, board }: Props) => {
   }, [showUsersList]);
 
   return {
-    boardError,
     selectedBoard,
     handleIsPublicMenu,
     isPublicMenuRef,
@@ -168,6 +244,8 @@ export const useBoard = ({ user, board }: Props) => {
     handleSideBoard,
     openSideBoard,
     setOpenSideBoard,
+    textareaValue,
+    setTextareaValue,
     onRemoveMember,
     showAddMemberMenu,
     handleAddMemberMenu,
@@ -178,5 +256,9 @@ export const useBoard = ({ user, board }: Props) => {
     handleAUserList,
     showUsersList,
     usersListRef,
+    showPermissions,
+    setshowPermissions,
+    sessionExpired,
+    setSessionExpired,
   };
 };

@@ -8,8 +8,6 @@ import { MdMenu, MdArrowDropDown } from "react-icons/md";
 // Logo
 import Logo from "@public/Logo.svg";
 import DefaultImg from "@public/favicon.ico";
-// Icons
-import { MdSearch } from "react-icons/md";
 // Styles
 import { colors, device } from "@styles/variables";
 import { Button } from "@styles/common/Button";
@@ -48,12 +46,6 @@ export const Header = () => {
               </a>
             </Link>
             <Menu>
-              <Search>
-                <input type="text" placeholder="keyword" />
-                <Button>
-                  <MdSearch size={15} /> <p>Search</p>
-                </Button>
-              </Search>
               <User>
                 {user.avatar ? (
                   <ImageLink
@@ -121,12 +113,6 @@ export const Header = () => {
                 {user.username}
               </div>
             </section>
-            <Search>
-              <input type="text" placeholder="keyword" />
-              <Button type="button">
-                <MdSearch size={15} /> <p>Search</p>
-              </Button>
-            </Search>
             <SideBarMenuActions>
               <Button width="100px" type="button" onClick={onLogout}>
                 Log out
@@ -157,7 +143,7 @@ const Nav = styled.nav`
   z-index: 2;
   display: flex;
   justify-content: space-between;
-  padding: 3px 10px;
+  padding: 10px 15px;
   align-items: center;
   background-color: ${colors.grey};
   -webkit-box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
@@ -264,29 +250,6 @@ const UserOptions = styled.div<SProps>`
     cursor: pointer;
     &:hover {
       text-decoration: underline;
-    }
-  }
-`;
-
-const Search = styled.div`
-  max-width: 100%;
-  min-height: 35px;
-  display: flex;
-  overflow: hidden;
-  margin: 5px;
-  padding: 2px;
-  border-radius: 10px;
-  background-color: ${colors.grey};
-  -webkit-box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
-  box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
-  input {
-    width: 100%;
-    padding-left: 10px;
-    background-color: ${colors.grey};
-    outline: none;
-    border: none;
-    &::placeholder {
-      opacity: 0.4;
     }
   }
 `;

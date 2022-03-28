@@ -1,4 +1,3 @@
-import axios from "axios";
 // Models
 import { TBoard, TBoardDto, TBoardResponse } from "@models/board";
 // Services
@@ -6,14 +5,22 @@ import apiReq from "@services/interceptors/apiThullo";
 import { handleErrorMessage } from "@services/error";
 
 export const getBoardsReq = async (
-  token: string,
+  token: string | null,
+  page: number,
   limit: number,
-  page: number
+  search?: string
 ) => {
   try {
-    const response = await apiReq(token).get<TBoardResponse>(
-      `/board/list?limit=${limit}&page=${page}`
-    );
+    let response;
+    if (search) {
+      response = await apiReq(token).get<TBoardResponse>(
+        `/board/list/search?limit=${limit}&page=${page}&search=${search}`
+      );
+    } else {
+      response = await apiReq(token).get<TBoardResponse>(
+        `/board/list?limit=${limit}&page=${page}`
+      );
+    }
     return response.data;
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
@@ -73,22 +80,6 @@ export const findUserInBoardReq = async (
 
 //******** Removing or adding members to the board ********//
 
-export const removeMemberReq = async (
-  token: string | null,
-  boardId: string,
-  userId: string
-) => {
-  try {
-    const response = await apiReq(token).put<TBoard>(`/board/remove/member`, {
-      boardId: boardId,
-      member: userId,
-    });
-    return response.data;
-  } catch (error: any) {
-    throw new Error(handleErrorMessage(error));
-  }
-};
-
 export const addMemberReq = async (
   token: string | null,
   boardId: string,
@@ -98,6 +89,24 @@ export const addMemberReq = async (
     const response = await apiReq(token).put<TBoard>(`/board/assign/member`, {
       boardId: boardId,
       member: userId,
+      authBoardId: boardId,
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(handleErrorMessage(error));
+  }
+};
+
+export const removeMemberReq = async (
+  token: string | null,
+  boardId: string,
+  userId: string
+) => {
+  try {
+    const response = await apiReq(token).put<TBoard>(`/board/remove/member`, {
+      boardId: boardId,
+      member: userId,
+      authBoardId: boardId,
     });
     return response.data;
   } catch (error: any) {

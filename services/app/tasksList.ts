@@ -1,4 +1,3 @@
-import axios from "axios";
 // Models
 import {
   TTasksListResponse,
@@ -58,10 +57,15 @@ export const updateTasksListReq = async (
 
 export const deleteTasksListReq = async (
   token: string | null,
-  tasksListId: string
+  tasksListId: string,
+  authBoardId: string
 ) => {
   try {
-    await apiReq(token).delete(`/tasklist/remove/${tasksListId}`);
+    await apiReq(token).delete(`/tasklist/remove/${tasksListId}`, {
+      headers: {
+        authBoardId: authBoardId,
+      },
+    });
   } catch (error: any) {
     throw new Error(handleErrorMessage(error));
   }

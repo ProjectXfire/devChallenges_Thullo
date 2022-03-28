@@ -54,6 +54,7 @@ interface SProps {
 }
 
 const IsPublicMenu = styled.div<SProps>`
+  min-width: 250px;
   display: ${(props) => (props.isIsPublicMenuActive ? "block" : "none")};
   position: absolute;
   padding: 8px;

@@ -12,11 +12,13 @@ export type TTasksList = {
 export type CreateTasksListDto = {
   boardId: string;
   title: string;
+  authBoardId: string;
 };
 
 export type UpdateTasksListDto = {
   title?: string;
   tasks?: string[];
+  authBoardId: string;
 };
 
 export type TTasksListResponse = {

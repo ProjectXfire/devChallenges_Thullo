@@ -5,7 +5,9 @@ import { getToken } from "@services/token";
 // Utils
 import { handleErrorMessage } from "@services/error";
 
-const baseURL = "http://localhost:4010";
+export const baseURL = "https://devchallenges-thullo.herokuapp.com";
+
+//export const baseURL = "http://localhost:4010";
 
 const thulloApi = axios.create({ baseURL });
 
@@ -18,6 +20,7 @@ const apiReq = (tokenSSR: string | null) => {
       } else {
         token = getToken();
       }
+
       if (token && config.headers) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }

@@ -8,7 +8,7 @@ import { createBoardReq } from "@services/app/board";
 // Context
 import { BoardContext } from "@utils/context/board/BoardContext";
 // Utils
-import { uploadFile } from "@utils/uploadFile";
+import { uploadImageFile } from "@utils/uploadImageFile";
 
 export const useModalNewBoard = (onClose: () => void) => {
   //******** VARIABLES ********//
@@ -60,7 +60,7 @@ export const useModalNewBoard = (onClose: () => void) => {
   };
   // Handle change avatar
   const setAvatar = (e: ChangeEvent<HTMLInputElement>) => {
-    uploadFile(e, (fileType, exceed, reader, formData) => {
+    uploadImageFile(e, (fileType, exceed, reader, formData) => {
       if (fileType) {
         toast.error("The file must be an image");
         return;

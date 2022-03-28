@@ -9,14 +9,20 @@ interface Props {
   inputValue: string;
   onClick: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
 }
 
-export const SearchByAction = ({ inputValue, onClick, onChange }: Props) => {
+export const SearchByAction = ({
+  inputValue,
+  onClick,
+  onChange,
+  placeholder = "Search...",
+}: Props) => {
   return (
     <Container>
       <input
         type="text"
-        placeholder="Search..."
+        placeholder={placeholder}
         value={inputValue}
         onChange={onChange}
       />
@@ -33,6 +39,7 @@ const Container = styled.div`
   border-radius: 10px;
   -webkit-box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.1);
+  background-color: white;
   overflow: hidden;
   input {
     width: 100%;

@@ -4,7 +4,6 @@ import Head from "next/head";
 // Providers
 import styled from "styled-components";
 import { MdAdd, MdLock, MdMoreVert, MdPublic } from "react-icons/md";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { ToastContainer } from "react-toastify";
 // Models
 import { TBoard } from "@models/board";
@@ -16,23 +15,23 @@ import { getUserReq } from "@services/app/user";
 import { getAllTasksListByBoardReq } from "@services/app/tasksList";
 // Utils
 import { useBoard } from "@utils/hook/useBoard";
-import { useTasksList } from "@utils/hook/useTasksList";
 import { parseCookies } from "@utils/parseCookies";
 // Components & styled components
 import { Button } from "@styles/common/Button";
 import { colors, device } from "@styles/variables";
+import { Background } from "@styles/common/Background";
 import { Members } from "@components/common/members";
 import { PublicPrivateMenu } from "@components/board/IsPublicMenu";
 import { SideBoard } from "@components/board/Sideboard";
 import { AddUserMenu } from "@components/board/AddUserMenu";
 import { UsersList } from "@components/board/UserList";
-import { TasksList } from "@components/tasksList/TasksList";
-import { AddTasksListMenu } from "@components/tasksList/AddTasksListMenu";
 import { TaskEdit } from "@components/task/editTask/TaskEdit";
+import { TasksLists } from "@components/tasksList/TasksLists";
+import { Permissions } from "@components/board/permissions";
+import { SessionExpired } from "@components/common/sessionExpired";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
-    const baseUrl = process.env.API_URL || "";
     const token = parseCookies(ctx);
     const id = ctx.params && ctx.params.id ? (ctx.params.id as string) : "";
     if (!token) {
@@ -48,8 +47,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const tasksList = await getAllTasksListByBoardReq(token, board._id);
     return {
       props: {
-        token,
-        baseUrl,
         user,
         board,
         tasksList,
@@ -69,14 +66,11 @@ interface Props {
   board: TBoard;
   user: TUser;
   tasksList: TTasksList[];
-  token: string;
-  baseUrl: string;
 }
 
-const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
+const BoardTasksList = ({ user, board, tasksList }: Props) => {
   //******* BOARD HOOK ********//
   const {
-    boardError,
     selectedBoard,
     isPublicMenuRef,
     showIsPublicMenu,
@@ -85,6 +79,8 @@ const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
     handleSideBoard,
     openSideBoard,
     setOpenSideBoard,
+    textareaValue,
+    setTextareaValue,
     onRemoveMember,
     showAddMemberMenu,
     handleAddMemberMenu,
@@ -95,22 +91,11 @@ const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
     handleAUserList,
     showUsersList,
     usersListRef,
+    showPermissions,
+    setshowPermissions,
+    sessionExpired,
+    setSessionExpired,
   } = useBoard({ board, user });
-  //******* TASKS LIST HOOK ********//
-  const {
-    tasksListError,
-    isBrowser,
-    tasksListByBoard,
-    onDragEnd,
-    addTasksListMenuRef,
-    showAddTasksListMenu,
-    setShowAddTasksListMenu,
-    addNewTasksList,
-    updateTasksListTitle,
-    deleteTasksList,
-    addNewTask,
-    deleteTask,
-  } = useTasksList({ board, tasksList });
 
   return (
     <>
@@ -160,13 +145,14 @@ const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
                 More
               </Button>
             )}
-            <AddUserMenu
-              open={showAddMemberMenu}
-              addMemberRef={addMemberRef}
-              searchUsers={searchUsers}
-              searchedUsers={searchedUsers}
-              addUserToBoard={addUserToBoard}
-            />
+            {showAddMemberMenu && (
+              <AddUserMenu
+                addMemberRef={addMemberRef}
+                searchUsers={searchUsers}
+                searchedUsers={searchedUsers}
+                addUserToBoard={addUserToBoard}
+              />
+            )}
             <UsersList
               usersRef={usersListRef}
               users={selectedBoard.members}
@@ -191,59 +177,41 @@ const BoardTasksList = ({ baseUrl, token, user, board, tasksList }: Props) => {
             onClose={handleSideBoard}
             open={openSideBoard}
             setOpenSideBoard={setOpenSideBoard}
+            textareaValue={textareaValue}
+            setTextareaValue={setTextareaValue}
             onRemoveMember={onRemoveMember}
             updateDescription={updateBoard}
+            setshowPermissions={() => {
+              setshowPermissions(true);
+              setOpenSideBoard(false);
+            }}
           />
         </Header>
         <Content>
-          <Button
-            bkgColor={colors.lightBlue}
-            textColor={colors.blue}
-            type="button"
-            onClick={() => setShowAddTasksListMenu(true)}
-          >
-            Add new list
-          </Button>
-          <AddTasksListMenu
-            open={showAddTasksListMenu}
-            onClose={() => setShowAddTasksListMenu(false)}
-            tasksListRef={addTasksListMenuRef}
-            onSave={addNewTasksList}
-          />
-          {isBrowser ? (
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable
-                droppableId="all-columns"
-                direction="horizontal"
-                type="column"
-              >
-                {(provided) => (
-                  <TasksListContainer
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {tasksListByBoard.map((item, index) => {
-                      return (
-                        <TasksList
-                          key={item._id}
-                          tasksList={item}
-                          deleteTasksList={deleteTasksList}
-                          updateTasksListTitle={updateTasksListTitle}
-                          tasksListIndex={index}
-                          addNewTask={addNewTask}
-                          deleteTask={deleteTask}
-                        />
-                      );
-                    })}
-                    {provided.placeholder}
-                  </TasksListContainer>
-                )}
-              </Droppable>
-            </DragDropContext>
-          ) : null}
+          <TasksLists board={board} tasksList={tasksList} />
         </Content>
       </Container>
-      <TaskEdit baseUrl={baseUrl} token={token} />
+      <TaskEdit />
+      {showPermissions && (
+        <>
+          <Permissions
+            setOpenSideBoard={setOpenSideBoard}
+            setshowPermissions={setshowPermissions}
+          />
+          <Background onClick={() => setshowPermissions(false)} />
+        </>
+      )}
+      {sessionExpired && (
+        <>
+          <SessionExpired
+            onClick={() => {
+              setSessionExpired(false);
+              window.location.reload();
+            }}
+          />
+          <Background hideCursorPointer zIndex={9} />
+        </>
+      )}
       <ToastContainer autoClose={2000} theme="dark" />
     </>
   );
@@ -292,10 +260,4 @@ const Content = styled.section`
   background-color: ${colors.greyVariant};
   border-radius: 10px;
   overflow: auto;
-`;
-
-const TasksListContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
 `;

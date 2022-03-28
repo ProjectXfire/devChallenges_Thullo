@@ -1,16 +1,19 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+// Providers
+import { toast } from "react-toastify";
 // Models
 import { TBoard } from "@models/board";
-import { TTasksList } from "@models/tasksList";
+import { TTasksList, TTasksListResponse } from "@models/tasksList";
 // Services
 import {
   createTasksListReq,
-  deleteTasksListReq,
   updateTasksListReq,
-  assignNewTaskReq,
-  removeTaskReq,
 } from "@services/app/tasksList";
-import { updateTaskReq } from "@services/app/task";
+import { updateTaskOnlyListReq } from "@services/app/task";
+import { updateAllLabelsByTaskIdReq } from "@services/app/label";
+import { updateAllCommentsByTaskIdReq } from "@services/app/comment";
+import { sendMessage } from "@services/socket/handleSocket";
 // Context
 import { BoardContext } from "@utils/context/board/BoardContext";
 import { DropResult } from "react-beautiful-dnd";
@@ -23,24 +26,22 @@ interface Props {
 export const useTasksList = ({ board, tasksList }: Props) => {
   //******** VARIABLES ********//
   const addTasksListMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   //******** STATES ********//
   // Context
   const {
-    states: { tasksListByBoard },
+    states: { tasksListByBoard, selectedBoard },
     setTasksLists,
     setTasksList,
-    removeTasksList,
     updateTasksList,
   } = useContext(BoardContext);
   // Show or hide add tasks list menu
   const [showAddTasksListMenu, setShowAddTasksListMenu] = useState(false);
-
+  // DnD
   const [isBrowser, setIsBrowser] = useState(false);
 
   //******** METHODS ********//
-  // Handle error on request
-  const [tasksListError, setTasksListError] = useState("");
 
   // Add new tasks list
   const addNewTasksList = async (title: string) => {
@@ -49,67 +50,21 @@ export const useTasksList = ({ board, tasksList }: Props) => {
         const newTasksList = await createTasksListReq(null, {
           boardId: board._id,
           title,
+          authBoardId: board._id,
         });
         setTasksList(newTasksList);
       } catch (error: any) {
-        setTasksListError(error.message);
+        if (error.message.includes("401")) {
+          toast.error("Action denied");
+        } else {
+          router.push({
+            pathname: "/error",
+            query: {
+              errorMessage: error.message,
+            },
+          });
+        }
       }
-    }
-  };
-  // Update tasks list
-  const updateTasksListTitle = async (
-    tasksListId: string,
-    title: string,
-    index: number
-  ) => {
-    try {
-      const tasksList = await updateTasksListReq(null, tasksListId, {
-        title,
-      });
-      updateTasksList(tasksList, index);
-    } catch (error: any) {
-      setTasksListError(error.message);
-    }
-  };
-  // Delete tasks list
-  const deleteTasksList = async (tasksListId: string) => {
-    try {
-      await deleteTasksListReq(null, tasksListId);
-      removeTasksList(tasksListId);
-    } catch (error: any) {
-      setTasksListError(error.message);
-    }
-  };
-  // Add new task
-  const addNewTask = async (
-    tasksListId: string,
-    boardId: string,
-    title: string,
-    index: number
-  ) => {
-    if (title) {
-      try {
-        const tasksList = await assignNewTaskReq(null, {
-          title,
-          listId: tasksListId,
-          boardId,
-        });
-        updateTasksList(tasksList, index);
-      } catch (error: any) {
-        setTasksListError(error.message);
-      }
-    }
-  };
-  // Delete task
-  const deleteTask = async (taskId: string, listId: string, index: number) => {
-    try {
-      const tasksList = await removeTaskReq(null, {
-        listId,
-        taskId,
-      });
-      updateTasksList(tasksList, index);
-    } catch (error: any) {
-      setTasksListError(error.message);
     }
   };
 
@@ -127,16 +82,31 @@ export const useTasksList = ({ board, tasksList }: Props) => {
     ) {
       return;
     }
+
+    // Create a new reference from the taskslist state
+    const newTasksListByBoard: TTasksList[] = JSON.parse(
+      JSON.stringify(tasksListByBoard)
+    );
+    // Create temp reference from action denied
+    const tempTasksListByBoard: TTasksList[] = JSON.parse(
+      JSON.stringify(tasksListByBoard)
+    );
     // Get index from the source and destination column
-    const startColumn = tasksListByBoard.findIndex(
+    const startColumn = newTasksListByBoard.findIndex(
       (item) => item._id === source.droppableId
     );
-    const finishColumn = tasksListByBoard.findIndex(
+    const finishColumn = newTasksListByBoard.findIndex(
       (item) => item._id === destination.droppableId
     );
+
     // Validate if the new position is in the same list
     if (startColumn === finishColumn) {
-      const tasksListSource = tasksListByBoard.find(
+      // Initial state from action denied
+      const initialStateTasksList = tempTasksListByBoard.find(
+        (item) => item._id === destination.droppableId
+      );
+      // TasksList to be changed from move elements
+      const tasksListSource = newTasksListByBoard.find(
         (item) => item._id === destination.droppableId
       );
       if (tasksListSource) {
@@ -144,28 +114,60 @@ export const useTasksList = ({ board, tasksList }: Props) => {
         tasksListSource.tasks.splice(source.index, 1);
         tasksListSource.tasks.splice(destination.index, 0, taskToMove);
         const newTasksOrderIds = tasksListSource.tasks.map((item) => item._id);
-        updateTasksList(tasksListSource, startColumn);
         try {
+          updateTasksList(tasksListSource, startColumn);
           await updateTasksListReq(null, destination.droppableId, {
             tasks: newTasksOrderIds,
+            authBoardId: board._id,
           });
+          sendMessage(selectedBoard._id);
           return;
         } catch (error: any) {
-          setTasksListError(error.message);
+          if (error.message.includes("401")) {
+            toast.error("Action denied");
+            if (initialStateTasksList) {
+              updateTasksList(initialStateTasksList, startColumn);
+            }
+          } else {
+            router.push({
+              pathname: "/error",
+              query: {
+                errorMessage: error.message,
+              },
+            });
+          }
         }
         return;
       }
       return;
     }
+
     // The new position is in a different list
-    const tasksListSource = tasksListByBoard.find(
+    // Initial state from action denied
+    const tempTasksListSource = tempTasksListByBoard.find(
       (item) => item._id === source.droppableId
     );
-    const tasksListDest = tasksListByBoard.find(
+    const tempTasksListDest = tempTasksListByBoard.find(
+      (item) => item._id === destination.droppableId
+    );
+
+    // TasksList to be changed from move elements
+    const tasksListSource = newTasksListByBoard.find(
+      (item) => item._id === source.droppableId
+    );
+    const tasksListDest = newTasksListByBoard.find(
       (item) => item._id === destination.droppableId
     );
     if (tasksListSource && tasksListDest) {
       const taskToMove = tasksListSource.tasks[source.index];
+      taskToMove.listId = destination.droppableId; // ---> Update listId in task in local
+      const newLabelArray = taskToMove.labels.map((item) => {
+        return {
+          ...item,
+          listId: destination.droppableId,
+        };
+      });
+      taskToMove.labels = newLabelArray; // ---> Update listId to all labels in task
       tasksListSource.tasks.splice(source.index, 1);
       tasksListDest.tasks.splice(destination.index, 0, taskToMove);
       const newTasksOrderSourceIds = tasksListSource.tasks.map(
@@ -174,26 +176,46 @@ export const useTasksList = ({ board, tasksList }: Props) => {
       const newTasksOrderDestinationIds = tasksListDest.tasks.map(
         (item) => item._id
       );
+      // Update in local
       updateTasksList(tasksListSource, startColumn);
-      const taskIndex = tasksListDest.tasks.findIndex(
-        (task) => task._id === draggableId
-      );
-      tasksListDest.tasks[taskIndex].listId = destination.droppableId;
       updateTasksList(tasksListDest, finishColumn);
-      try {
-        await updateTasksListReq(null, source.droppableId, {
+      // Update in database
+      Promise.all([
+        updateAllLabelsByTaskIdReq(null, draggableId, destination.droppableId),
+        updateTasksListReq(null, source.droppableId, {
           tasks: newTasksOrderSourceIds,
-        });
-        await updateTasksListReq(null, destination.droppableId, {
+          authBoardId: board._id,
+        }),
+        updateTasksListReq(null, destination.droppableId, {
           tasks: newTasksOrderDestinationIds,
-        });
-        await updateTaskReq(null, draggableId, {
+          authBoardId: board._id,
+        }),
+        updateTaskOnlyListReq(null, draggableId, {
           listId: destination.droppableId,
+          authBoardId: board._id,
+        }),
+        updateAllCommentsByTaskIdReq(null, draggableId, {
+          listId: destination.droppableId,
+        }),
+      ])
+        .then(() => sendMessage(selectedBoard._id))
+        .catch((error) => {
+          if (error.message.includes("401")) {
+            toast.error("Action denied");
+            // Update in local
+            if (tempTasksListSource && tempTasksListDest) {
+              updateTasksList(tempTasksListSource, startColumn);
+              updateTasksList(tempTasksListDest, finishColumn);
+            }
+          } else {
+            router.push({
+              pathname: "/error",
+              query: {
+                errorMessage: error.message,
+              },
+            });
+          }
         });
-        return;
-      } catch (error: any) {
-        setTasksListError(error.message);
-      }
     }
   };
 
@@ -202,6 +224,7 @@ export const useTasksList = ({ board, tasksList }: Props) => {
   useEffect(() => {
     setTasksLists(tasksList);
   }, []);
+
   // Close add tasks list on onClick event outside menu
   useEffect(() => {
     const checkIfClickedOutside = (e: any) => {
@@ -218,22 +241,18 @@ export const useTasksList = ({ board, tasksList }: Props) => {
     };
   }, [showAddTasksListMenu]);
 
+  // DND Library
   useEffect(() => {
     setIsBrowser(process.browser);
   }, []);
 
   return {
     isBrowser,
-    tasksListError,
     tasksListByBoard,
     onDragEnd,
     addNewTasksList,
     addTasksListMenuRef,
     showAddTasksListMenu,
     setShowAddTasksListMenu,
-    updateTasksListTitle,
-    deleteTasksList,
-    addNewTask,
-    deleteTask,
   };
 };

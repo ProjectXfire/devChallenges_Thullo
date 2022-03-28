@@ -16,94 +16,35 @@ import { TasksListMenu } from "@components/tasksList/TasksListMenu";
 import { Task } from "@components/task/Task";
 import { InputTitle } from "@components/tasksList/InputTitle";
 import { DeleteModal } from "@components/common/deleteModal";
+import { useTaskList } from "@utils/hook/useTaskList";
 
 interface Props {
   tasksList: TTasksList;
-  deleteTasksList: (tasksListId: string) => Promise<void>;
   tasksListIndex: number;
-  updateTasksListTitle: (
-    tasksListId: string,
-    title: string,
-    index: number
-  ) => Promise<void>;
-  addNewTask: (
-    tasksListId: string,
-    boardId: string,
-    title: string,
-    index: number
-  ) => Promise<void>;
-  deleteTask: (taskId: string, listId: string, index: number) => Promise<void>;
 }
 
-export const TasksList = ({
-  tasksList,
-  deleteTasksList,
-  tasksListIndex,
-  updateTasksListTitle,
-  addNewTask,
-  deleteTask,
-}: Props) => {
-  //******** VARIABLES ********//
-  const tasksListMenuRef = useRef<HTMLDivElement>(null);
-  const tastsListTitleMenuRef = useRef<HTMLDivElement>(null);
-  const newTaskRef = useRef<HTMLDivElement>(null);
-
-  //******** STATES ********//
-  // Show or hide tasks list menu
-  const [showTasksListMenu, setShowTasksListMenu] = useState(false);
-  // Show or hide change title input
-  const [showTasksListInput, setShowTasksListInput] = useState(false);
-  // Show or hide new task menu
-  const [showTaskInput, setShowTaskInput] = useState(false);
-  // Handle input title value from rename tasks list
-  const [inputTasksListValue, setInputTasksListValue] = useState(
-    tasksList.title
-  );
-  // Handle input title value from new task
-  const [inputTaskValue, setInputTaskValue] = useState("");
-  // Handle delete modal
-  const [showDeleteTasksListModal, setShowDeleteTasksListModal] =
-    useState(false);
-
-  // Close tasks list menu on onClick event outside menu
-  useEffect(() => {
-    const checkIfClickedOutside = (e: any) => {
-      if (showTasksListMenu && !tasksListMenuRef.current?.contains(e.target)) {
-        setShowTasksListMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", checkIfClickedOutside);
-    return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showTasksListMenu]);
-  // Close tasks list menu on onClick event outside menu
-  useEffect(() => {
-    const checkIfClickedOutside = (e: any) => {
-      if (
-        showTasksListInput &&
-        !tastsListTitleMenuRef.current?.contains(e.target)
-      ) {
-        setShowTasksListInput(false);
-      }
-    };
-    document.addEventListener("mousedown", checkIfClickedOutside);
-    return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showTasksListInput]);
-  // Close task menu on onClick event outside menu
-  useEffect(() => {
-    const checkIfClickedOutside = (e: any) => {
-      if (showTaskInput && !newTaskRef.current?.contains(e.target)) {
-        setShowTaskInput(false);
-      }
-    };
-    document.addEventListener("mousedown", checkIfClickedOutside);
-    return () => {
-      document.removeEventListener("mousedown", checkIfClickedOutside);
-    };
-  }, [showTaskInput]);
+export const TasksList = ({ tasksList, tasksListIndex }: Props) => {
+  const {
+    newTaskRef,
+    tasksListMenuRef,
+    tastsListTitleMenuRef,
+    showTasksListMenu,
+    setShowTasksListMenu,
+    showTasksListInput,
+    setShowTasksListInput,
+    showDeleteTasksListModal,
+    setShowDeleteTasksListModal,
+    inputTasksListValue,
+    setInputTasksListValue,
+    inputTaskValue,
+    setInputTaskValue,
+    showTaskInput,
+    setShowTaskInput,
+    updateTasksListTitle,
+    deleteTasksList,
+    addNewTask,
+    deleteTask,
+  } = useTaskList({ tasksList });
 
   return (
     <>

@@ -16,7 +16,7 @@ export const handleErrorMessage = (error: AxiosError<any, any>) => {
       return "Not found";
     }
     if (error.response.status === 401) {
-      return error.response.data.message;
+      return error.response.status + " " + error.response.data.message;
     }
     if (error.response.status === 400) {
       return error.response.data.message;

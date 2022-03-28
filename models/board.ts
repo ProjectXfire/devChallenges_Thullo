@@ -4,6 +4,8 @@ import Joi from "joi";
 export type TBoardResponse = {
   pages: number;
   result: TBoard[];
+  total: number;
+  documentsPerPage: number;
 };
 
 export type TBoard = {
@@ -24,6 +26,7 @@ export type TBoardDto = {
   title: string;
   isPublic: boolean;
   description: string;
+  authBoardId: string;
 };
 
 export const BoardSchema = Joi.object<TBoardForm>({

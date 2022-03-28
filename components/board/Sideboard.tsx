@@ -34,12 +34,14 @@ interface Props {
   onClose: () => void;
   open: boolean;
   setOpenSideBoard: Dispatch<SetStateAction<boolean>>;
+  textareaValue: string;
+  setTextareaValue: React.Dispatch<React.SetStateAction<string>>;
   onRemoveMember: (userId: string) => Promise<void>;
   updateDescription: (
     isPublic?: boolean | null,
-    title?: string | null,
-    description?: string | null
+    title?: string | null
   ) => Promise<void>;
+  setshowPermissions: () => void;
 }
 
 interface UserToDelete {
@@ -51,8 +53,11 @@ export const SideBoard = ({
   onClose,
   open,
   setOpenSideBoard,
+  textareaValue,
+  setTextareaValue,
   onRemoveMember,
   updateDescription,
+  setshowPermissions,
 }: Props) => {
   //******** VARIABLES ********//
   const sideboardRef = useRef<HTMLDivElement>(null);
@@ -66,7 +71,7 @@ export const SideBoard = ({
   // Enable, disable textarea
   const [activeTextarea, setActiveTextarea] = useState(true);
   // Textarea value
-  const [textareaValue, setTextareaValue] = useState("");
+  //const [textareaValue, setTextareaValue] = useState("");
   // Handle delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -74,10 +79,6 @@ export const SideBoard = ({
   // Loader url avatar from admin user
   const loaderAvatar = () => {
     return selectedBoard.members[0].avatar;
-  };
-  // Handle textarea value
-  const handleTextareaValue = (text: string) => {
-    setTextareaValue(text);
   };
 
   //******** EFFECTS ********//
@@ -169,7 +170,7 @@ export const SideBoard = ({
                       allowedTags: ["strong"],
                       allowedAttributes: {},
                     });
-                    handleTextareaValue(value);
+                    setTextareaValue(value);
                   }}
                 ></textarea>
               </FieldContent>
@@ -191,7 +192,7 @@ export const SideBoard = ({
                       type="button"
                       onClick={() => {
                         setActiveTextarea(true);
-                        updateDescription(null, null, textareaValue);
+                        updateDescription(null, null);
                       }}
                       bkgColor={colors.green}
                     >
@@ -220,6 +221,8 @@ export const SideBoard = ({
                         userToDeleteRef.current.userId = userId;
                         setShowDeleteModal(true);
                       }}
+                      showPermissionIcon
+                      onShowPermissions={setshowPermissions}
                     />
                   ))}
                 </TeamContainer>
@@ -258,7 +261,7 @@ interface SProps {
 }
 
 const Container = styled.div`
-  min-width: 300px;
+  width: 300px;
   max-height: 800px;
   position: absolute;
   right: 0;
@@ -270,6 +273,7 @@ const Container = styled.div`
   overflow: auto;
   z-index: 2;
   @media ${device.tablet} {
+    width: 500px;
     top: 52px;
   }
 `;

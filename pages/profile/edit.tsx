@@ -25,12 +25,14 @@ import { useProfile } from "@utils/hook/useProfile";
 import { parseCookies } from "@utils/parseCookies";
 // Logo
 import DefaultImg from "@public/favicon.ico";
-// Components
+// Components & styled components
 import { colors } from "@styles/variables";
 import { Container, Section } from "@styles/common/UserContainer";
 import { InputGroup, InputFile } from "@styles/common/Input";
 import { Alert } from "@styles/common/Alert";
 import { Button } from "@styles/common/Button";
+import { Background } from "@styles/common/Background";
+import { SessionExpired } from "@components/common/sessionExpired";
 
 //******** SSR ********//
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
@@ -69,8 +71,15 @@ interface Props {
 const EditProfile = ({ user }: Props) => {
   //******** CONTEXT  ********//
   // Main hook
-  const { error, disabled, onUpdate, tempAvatar, changeAvatar } =
-    useProfile(user);
+  const {
+    error,
+    disabled,
+    onUpdate,
+    tempAvatar,
+    changeAvatar,
+    sessionExpired,
+    setSessionExpired,
+  } = useProfile(user);
 
   //******** STATES ********//
   // Form states
@@ -232,6 +241,17 @@ const EditProfile = ({ user }: Props) => {
           </form>
         </Section>
         <ToastContainer autoClose={2000} theme="dark" />
+        {sessionExpired && (
+          <>
+            <SessionExpired
+              onClick={() => {
+                setSessionExpired(false);
+                window.location.reload();
+              }}
+            />
+            <Background hideCursorPointer zIndex={9} />
+          </>
+        )}
       </Container>
     </>
   );

@@ -13,7 +13,6 @@ import { CardModalContainer } from "@components/common/cardModalContainer";
 import { SearchByAction } from "@components/common/SearchByAction";
 
 interface Props {
-  open: boolean;
   addMemberRef: RefObject<HTMLDivElement>;
   searchUsers: (searchValue: string) => Promise<void>;
   searchedUsers: TUser[];
@@ -21,7 +20,6 @@ interface Props {
 }
 
 export const AddUserMenu = ({
-  open,
   addMemberRef,
   searchUsers,
   searchedUsers,
@@ -43,45 +41,41 @@ export const AddUserMenu = ({
   };
 
   return (
-    <>
-      {open && (
-        <CardModalContainer
-          cardRef={addMemberRef}
-          title="Invite Board"
-          subTitle="Search users you want to invite"
-          btnText="Invite"
-          iconTop="8px"
-          iconRight="8px"
-          onActionClick={() => {
-            addUserToBoard(selectedUser);
-            setSelectedUser("");
-            setSearchValue("");
-          }}
-        >
-          <SearchByAction
-            inputValue={searchValue}
-            onChange={(e) => handleSearchValue(e)}
-            onClick={() => searchUsers(searchValue)}
-          />
-          <Content>
-            {searchedUsers.length > 0 && (
-              <SearchedMembersContainer>
-                {searchedUsers.map((item) => (
-                  <SearchedMember
-                    key={item._id}
-                    selectedUser={item._id === selectedUser}
-                    onClick={() => HandleSelectedUser(item._id)}
-                  >
-                    <p>{capLetters(`${item.name} ${item.lastname}`)}</p>
-                    <p>{`${item.name} ${item.lastname}`}</p>
-                  </SearchedMember>
-                ))}
-              </SearchedMembersContainer>
-            )}
-          </Content>
-        </CardModalContainer>
-      )}
-    </>
+    <CardModalContainer
+      cardRef={addMemberRef}
+      title="Invite Board"
+      subTitle="Search users you want to invite"
+      btnText="Invite"
+      iconTop="8px"
+      iconRight="8px"
+      onActionClick={() => {
+        addUserToBoard(selectedUser);
+        setSelectedUser("");
+        setSearchValue("");
+      }}
+    >
+      <SearchByAction
+        inputValue={searchValue}
+        onChange={(e) => handleSearchValue(e)}
+        onClick={() => searchUsers(searchValue)}
+      />
+      <Content>
+        {searchedUsers.length > 0 && (
+          <SearchedMembersContainer>
+            {searchedUsers.map((item) => (
+              <SearchedMember
+                key={item._id}
+                selectedUser={item._id === selectedUser}
+                onClick={() => HandleSelectedUser(item._id)}
+              >
+                <p>{capLetters(`${item.name} ${item.lastname}`)}</p>
+                <p>{`${item.name} ${item.lastname}`}</p>
+              </SearchedMember>
+            ))}
+          </SearchedMembersContainer>
+        )}
+      </Content>
+    </CardModalContainer>
   );
 };
 
@@ -92,6 +86,7 @@ interface SProps {
 }
 
 const Content = styled.div`
+  min-width: 250px;
   display: flex;
   flex-direction: column;
   align-items: center;

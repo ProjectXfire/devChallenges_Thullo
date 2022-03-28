@@ -24,9 +24,9 @@ export const useLogin = () => {
     try {
       setDisabled(true);
       await loginReq(data);
-      setDisabled(false);
       onGetToken();
       e.target.reset();
+      setDisabled(false);
       router.push("/");
     } catch (error: any) {
       setDisabled(false);

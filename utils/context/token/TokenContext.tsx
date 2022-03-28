@@ -10,6 +10,7 @@ interface ITokenProps {
   states: ITokenStates;
   onGetToken: () => void;
   onRemoveToken: () => void;
+  verifyToken: () => void;
 }
 
 export const TokenContext = createContext({} as ITokenProps);
@@ -26,6 +27,10 @@ export const TokenProvider: React.FC = ({ children }) => {
     });
   };
 
+  const verifyToken = () => {
+    return getToken();
+  };
+
   const onRemoveToken = () => {
     setStates({ isLogged: false });
   };
@@ -35,7 +40,9 @@ export const TokenProvider: React.FC = ({ children }) => {
   }, [states.isLogged]);
 
   return (
-    <TokenContext.Provider value={{ states, onGetToken, onRemoveToken }}>
+    <TokenContext.Provider
+      value={{ states, onGetToken, onRemoveToken, verifyToken }}
+    >
       {children}
     </TokenContext.Provider>
   );

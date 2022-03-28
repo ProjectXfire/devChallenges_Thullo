@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Head from "next/head";
@@ -11,11 +11,14 @@ import { TUser } from "@models/user";
 import { getUserReq } from "@services/app/user";
 // Utils
 import { parseCookies } from "@utils/parseCookies";
+import { UserContext } from "@utils/context/user/UserContext";
 // Logo
 import DefaultImg from "@public/favicon.ico";
-// Components
+// Components & styled components
 import { Container, Section } from "@styles/common/UserContainer";
 import { colors } from "@styles/variables";
+import { Background } from "@styles/common/Background";
+import { SessionExpired } from "@components/common/sessionExpired";
 
 //******** SSR ********//
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
@@ -51,11 +54,33 @@ interface Props {
 
 //******** COMPONENT ********//
 const Profile = ({ user }: Props) => {
+  //******** CONTEXT ********//
+  const { clearUser } = useContext(UserContext);
+
+  //******** STATES ********//
+  // Handle session
+  const [sessionExpired, setSessionExpired] = useState(false);
+
   //******** METHODS ********//
   // Load image by URL
   const myLoaderAvatar = () => {
     return user.avatar;
   };
+
+  //******** EFFECTS ********//
+  // Listener cookie
+  useEffect(() => {
+    const currentCookie = document.cookie;
+    const time = setInterval(() => {
+      if (currentCookie !== document.cookie) {
+        clearInterval(time);
+        setSessionExpired(true);
+      }
+    }, 1000);
+    return () => {
+      clearInterval(time);
+    };
+  }, []);
 
   //******** RENDERS ********//
   return (
@@ -100,6 +125,18 @@ const Profile = ({ user }: Props) => {
             )}
           </Field>
         </Section>
+        {sessionExpired && (
+          <>
+            <SessionExpired
+              onClick={() => {
+                setSessionExpired(false);
+                clearUser();
+                window.location.reload();
+              }}
+            />
+            <Background hideCursorPointer zIndex={9} />
+          </>
+        )}
       </Container>
     </>
   );

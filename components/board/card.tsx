@@ -1,12 +1,9 @@
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/router";
 // Providers
 import styled from "styled-components";
 // Models
 import { TBoard } from "@models/board";
-// Services
-import { findUserInBoardReq } from "@services/app/board";
 // Images
 import DefaultImgBoard from "@public/Logo.svg";
 // Components
@@ -14,13 +11,10 @@ import { Members } from "@components/common/members";
 
 interface Props {
   board: TBoard;
-  validateAccessToBoard: (boardId: string) => Promise<void>;
+  validateAccessToBoard: (boardId: string, isPublic: boolean) => Promise<void>;
 }
 
 export const BoardCard = ({ board, validateAccessToBoard }: Props) => {
-  //******** VARIABLES ********//
-  const router = useRouter();
-
   //******** METHODS ********//
   // Load board cover
   const coverLoader = () => {
@@ -29,10 +23,10 @@ export const BoardCard = ({ board, validateAccessToBoard }: Props) => {
 
   //******** RENDER ********//
   return (
-    <Container onClick={() => validateAccessToBoard(board._id)}>
+    <Container onClick={() => validateAccessToBoard(board._id, board.isPublic)}>
       <ImageContainer>
         {board.cover ? (
-          <ImageNext
+          <Image
             src="cover"
             alt="default"
             layout="fill"
@@ -41,7 +35,7 @@ export const BoardCard = ({ board, validateAccessToBoard }: Props) => {
             priority
           />
         ) : (
-          <ImageNext
+          <Image
             src={DefaultImgBoard}
             alt="default"
             layout="fill"
@@ -78,6 +72,7 @@ const ImageContainer = styled.div`
   position: relative;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
+  overflow: hidden;
 `;
 
 const MembersContainer = styled.div`
@@ -87,8 +82,4 @@ const MembersContainer = styled.div`
   p {
     color: rgba(0, 0, 0, 0.2);
   }
-`;
-
-const ImageNext = styled(Image)`
-  border-radius: 5px;
 `;

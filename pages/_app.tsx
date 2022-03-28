@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "@styles/common/pagination.css";
 import type { AppContext, AppProps } from "next/app";
 import App from "next/app";
 // Providers
@@ -7,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { TokenProvider } from "@utils/context/token/TokenContext";
 import { UserProvider } from "@utils/context/user/UserContext";
 import { BoardProvider } from "@utils/context/board/BoardContext";
+import { TaskProvider } from "@utils/context/Task/TaskContext";
 // Components
 import { Layout } from "@components/layout/Layout";
 
@@ -20,7 +22,9 @@ const MyAppProviders: React.FC = ({ children }) => {
   return (
     <TokenProvider>
       <UserProvider>
-        <BoardProvider>{children}</BoardProvider>
+        <BoardProvider>
+          <TaskProvider>{children}</TaskProvider>
+        </BoardProvider>
       </UserProvider>
     </TokenProvider>
   );

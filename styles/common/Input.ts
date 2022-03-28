@@ -10,7 +10,7 @@ interface Props {
 
 export const InputGroup = styled.div<Props>`
   display: flex;
-  padding: 8px 12px;
+  padding: 6px 10px;
   margin-bottom: 10px;
   gap: 10px;
   border: 1px solid rgba(0, 0, 0, 0.1);
