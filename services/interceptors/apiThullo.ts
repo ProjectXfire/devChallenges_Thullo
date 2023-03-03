@@ -5,9 +5,7 @@ import { getToken } from "@services/token";
 // Utils
 import { handleErrorMessage } from "@services/error";
 
-export const baseURL = "https://devchallenges-thullo.herokuapp.com";
-
-//export const baseURL = "http://localhost:4010";
+export const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const thulloApi = axios.create({ baseURL });
 

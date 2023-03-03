@@ -118,7 +118,7 @@ const Home = ({ user, boardResponse }: Props) => {
           {showModal && <BoardModal onClose={() => setShowModal(false)} />}
           {boards.map((item, index) => (
             <BoardCard
-              key={index}
+              key={item._id}
               board={item}
               validateAccessToBoard={validateAccessToBoard}
             />

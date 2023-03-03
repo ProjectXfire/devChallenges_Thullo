@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 import { Socket } from "socket.io-client";
 // Models
-import { TTasksList, TTasksListResponse } from "@models/tasksList";
+import { TTasksListResponse } from "@models/tasksList";
 // API
 import { baseURL } from "@services/interceptors/apiThullo";
 let socket: Socket;
